@@ -1,0 +1,8 @@
+.filepicker button {
+    display: none;
+}
+
+.filepicker div {
+    width: 50%;
+    text-align: center;
+}
