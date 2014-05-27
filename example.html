@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'>
+    </script>
+</head>
+<body>
+    
+    <input id="user" type="text">
+    <input id="pass" type="text">
+    <br>
+    <button id="b1">Load html</button>
+    <button id="b2">Authenticate</button>
+
+    <script>
+
+    function validateUser(u) {return u == 'schillek';}
+
+    $( '#user' ).bind('input propertychange', function() {
+        var u = $(this).val();
+        if (validateUser(u)) {
+            $(this).css('background-color', 'green');
+        } else {
+            $(this).css('background-color', 'red');
+        }
+    });
+
+    $( '#b1' ).click(function() {
+        $.get('http://httpbin.org/html', function(data) {$('body').html(data);})
+    });
+
+    url = 'https://print.ads.carleton.edu:9192'
+
+    headers = {
+        'Host': 'print.ads.carleton.edu:9192',
+        'Connection': 'keep-alive',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36',
+        'Accept-Encoding': 'gzip,deflate,sdch',
+        'Accept-Language': 'en-US,en;q=0.8'
+    }
+
+    login_data = {
+        'service': 'direct/1/Home/$Form$0',
+        'sp': 'S0',
+        'Form0': '$Hidden$0,$Hidden$1,inputUsername,inputPassword,$PropertySelection,$Submit$0',
+        '$Hidden$0': 'true',
+        '$Hidden$1': 'X',
+        'inputUsername': '',
+        'inputPassword': '',
+        '$PropertySelection': 'en',
+        '$Submit$0': 'Log in'
+    }
+
+    $( '#b2' ).click(function() {
+        $.ajax({
+            type: "POST",
+            url: url + '/app',
+            headers: headers,
+            data: login_data,
+            success: function(resp) {
+                console.log(resp);
+            }
+        });
+    });
+
+    </script>
+
+</body>
+</html>
