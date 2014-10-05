@@ -1,7 +1,8 @@
 /******************************
-  Requests helpers
+  Request helpers
  ******************************/
 
+//GET from the print server
 var getRequest = function(successHandler) {
   $.ajax({
     type: 'GET',
@@ -12,6 +13,7 @@ var getRequest = function(successHandler) {
   });
 }
 
+//POST to the print server
 var postRequest = function(data, successHandler) {
   $.ajax({
     type: 'POST',
@@ -23,6 +25,7 @@ var postRequest = function(data, successHandler) {
   });
 };
 
+//Adds default login data
 var loginData = function(user, pass) {
   return {
     'service': 'direct/1/Home/$Form$0',
@@ -43,7 +46,6 @@ var loginData = function(user, pass) {
 
 // 0. Begin session by accessing login page
 var request0 = function() {
-  console.log("Print server accessed.")
   getRequest(function() {
     stateReady();
   });
@@ -51,7 +53,7 @@ var request0 = function() {
 
 // 1. Log in with credentials
 var request1 = function(user, pass) {
-  console.log('Trying to log in with ' + user + ', ' + pass);
+  //console.log('Trying to log in with ' + user + ', ' + pass);
   postRequest(loginData(user, pass), function(response) {
     var foot = response.substring(response.length - 500);
     if (foot.indexOf('Invalid username or password') < 0
@@ -61,6 +63,11 @@ var request1 = function(user, pass) {
       stateDenied();
     }
   });
+}
+
+// 2. Print a generic document
+var request3 = function(data) {
+  console.log("Printing with", data);
 }
 
 /******************************
@@ -76,17 +83,20 @@ var stateInitial = function() {
 
 // 1. Session started with print server
 var stateReady = function() {
+  console.log("Print server accessed.")
   sessionState = 1;
 }
 
 // 2. Login attempt failed
 var stateDenied = function() {
+  //console.log("Login attempt failed.");
   sessionState = 2;
   $('#userpass input').css('border-color', 'red');
 }
 
 // 3. Logged in
 var stateLogin = function() {
+  console.log("Logged in.");
   sessionState = 3;
   $('#userpass input').css('border-color', 'cyan');
 }
@@ -96,7 +106,6 @@ var stateLogin = function() {
  ******************************/
 
 $(document).ready(function() {
-
   stateInitial();
   request0();
 
@@ -108,18 +117,21 @@ $(document).ready(function() {
     }
   }));
 
-  $("form").submit(function() {
+  $("#printButton").click(function() {
     var data = {
         username: $("#username").val(),
         password: $("#password").val(),
         printer: $("#printers").val(),
         file: $("#file").val()
     };
-    console.log(data.username);
-    console.log(data.password);
-    console.log(data.printer);
-    console.log(data.file);
-    console.log(data);
+    if(sessionState != 3){
+      console.log("NOT LOGGED IN");
+    } else {
+      request3(data);
+    }
+    //console.log(data.username);
+    //console.log(data.password);
+    //console.log(data.printer);
+    //console.log(data.file);
   });
-
 });
