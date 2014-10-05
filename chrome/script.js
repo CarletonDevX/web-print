@@ -100,11 +100,13 @@ $(document).ready(function() {
   stateInitial();
   request0();
 
-  $('#userpass input').bind('input propertychange', function() {
+  $('#userpass input').bind('input propertychange', $.debounce(500, function() {
     var user = $('#username').val();
     var pass = $('#password').val();
-    request1(user, pass);
-  });
+    if (user && pass) {
+      request1(user, pass);
+    }
+  }));
 
   $("form").submit(function() {
     var data = {
