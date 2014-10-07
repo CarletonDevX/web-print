@@ -7,7 +7,8 @@
 
     "permissions": [
         "https://print.ads.carleton.edu:9192/",
-        "tabs"
+        "tabs",
+        "geolocation"
     ],
     "background": {
         "scripts": ["background.js"]
