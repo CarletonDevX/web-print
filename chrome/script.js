@@ -303,6 +303,12 @@ var printers = [
     longitude: -93.156000,
     latitude: 44.460783,
   },
+  {
+    name: '3rd CMC',
+    long_name: 'print\\CMC305-X4600',
+    longitude: -93.153771,
+    latitude: 44.462505
+  }
 ];
 
 var selectClosestPrinter = function(location) {
@@ -320,5 +326,5 @@ var selectClosestPrinter = function(location) {
       closest = printers[i];
     }
   }
-  // Do something with closest
+  console.log("Closest printer is " + closest.name);
 }
