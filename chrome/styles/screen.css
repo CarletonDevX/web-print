@@ -21,13 +21,20 @@ body {
   border: 1px #D3D3D3 solid;
   border-width: 0 1px;
   padding: 0 1.5em;
+  box-sizing: border-box;
   list-style-type: none;
   position: relative;
+  width: 100%;
+  max-width: 18.9em;
 }
 
 .paper>li {
   padding: 1.5em 0;
   border-bottom: 1px solid #D2D2D2;
+}
+
+.paper>li.big {
+  padding: 3.5em 0;
 }
 
 .paper>li:last-child {
@@ -75,4 +82,21 @@ body {
     );
   background-size: 10px 20px;
   background-position: center bottom;
+}
+
+.icon {
+  margin: 0 auto;
+  display: block;
+}
+
+h1 {
+  font-size: 1.5em;
+  font-weight: 600;
+  text-align: center;
+  margin: 0.8em 0 0 0;
+}
+
+.printer-selector {
+  color: #000;
+  text-decoration: none;
 }

@@ -11,3 +11,8 @@ Todo:
 - let user specify number of copies
 - use location to find the closest popular printer
 - get photos of printers :D
+
+
+Printer Icon Credits:
+
+> Printer by Icomatic from The Noun Project
