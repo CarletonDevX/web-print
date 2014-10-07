@@ -143,9 +143,9 @@ h4 {
   width: 0;
   height: 0;
   position: absolute;
-  bottom: 0.2em;
-  right: -0.6em;
-  border-width: 0.38em 0.23em 0.23em 0.23em;
+  bottom: 0.3em;
+  right: -0.5em;
+  border-width: 0.28em 0.15em 0.15em 0.15em;
   border-style: solid;
   border-color: #333 transparent transparent transparent;
 }
