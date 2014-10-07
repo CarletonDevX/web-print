@@ -93,34 +93,36 @@ upload_file_payload = {
 s = requests.Session()
 s.headers = headers
 
-# Begin session by accessing login page.
+# 0. Begin session by accessing login page.
 r = s.get(url + '/app')
 
-# Log in with credentials.
+# 1. Log in with credentials.
 r = s.post(url + '/app', data=login_payload('schillek', ''))
 
-# User web print page.
+# 2. User web print page.
 r = s.get(url + '/app?service=page/UserWebPrint', data=web_print_payload)
 
-# "Submit job."
+# 3. Submit job.
 r = s.get(url + '/app?service=action/1/UserWebPrint/0/$ActionLink')
 
-# Step 1: Submit printer selection.
+# 4. Submit printer selection.
 r = s.post(url + '/app', data=select_printer_payload)
 
-# Step 2: Submit print options and account selection.
+# 6. Submit print options and account selection.
 r = s.post(url + '/app', data=print_options_payload)
 
 uploadUID = int([line for line in r.text.split('\n') if 'var uploadUID' in line][0].split('\'')[1])
 
 filename = 'Qinghuaci.pdf'
 f = open(filename)
+
+# 7. 
 r = s.post(url + '/upload/%i' % uploadUID, files={'file[]': f})
 
-# Step 3: Submit file upload.
+# 8. Submit file upload.
 r = s.post(url + '/app', data=upload_file_payload)
 
-# Release the first job on the job release page for printing.
+# 9. Release the first job on the job release page for printing.
 
 releaseURLs = []
 while not releaseURLs:
