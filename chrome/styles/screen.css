@@ -20,21 +20,26 @@ body {
   background-color: #FCFCFC;
   border: 1px #d3d3d3 solid;
   border-width: 0 1px;
-  padding: 0 1.5em;
+  padding: 0.5em 1.5em;
   box-sizing: border-box;
   list-style-type: none;
   position: relative;
   width: 100%;
   max-width: 18.9em;
+  box-shadow: 0px 0px 50px rgba(0,0,0,0.08);
 }
 
 .paper>li {
-  padding: 1.5em 0;
+  padding: 1.75em 0;
   border-bottom: 1px solid #D2D2D2;
 }
 
 .paper>li.big {
   padding: 3.5em 0;
+}
+
+.paper>li.small {
+  padding: 0.5em 0;
 }
 
 .paper>li.center {
@@ -60,12 +65,14 @@ body {
     linear-gradient(
       45deg, transparent 33.333%,
       #FCFCFC 33.333%, #FCFCFC 66.667%,
-      transparent 66.667%
+      #d9d9d9 66.667%, #d9d9d9 69.667%,
+      transparent 69.667%
     ),
     linear-gradient(
       -45deg, transparent 33.333%,
       #FCFCFC 33.333%, #FCFCFC 66.667%,
-      transparent 66.667%
+      #d9d9d9 66.667%, #d9d9d9 69.667%,
+      transparent 69.667%
     );
   background-size: 10px 20px;
   background-position: center top;
@@ -76,13 +83,13 @@ body {
   background:
     linear-gradient(
       45deg,transparent 33.333%,
-      #c9c9c9 33.333%, #c9c9c9 36%,
+      #d9d9d9 33.333%, #d9d9d9 36%,
       #FCFCFC 36%, #FCFCFC 66.667%,
      transparent 66.667%
     ),
     linear-gradient(
       -45deg,transparent 33.333%,
-      #c9c9c9 33.333%, #c9c9c9 36%,
+      #d9d9d9 33.333%, #d9d9d9 36%,
       #FCFCFC 36%, #FCFCFC 66.667%,
      transparent 66.667%
     );
