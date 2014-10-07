@@ -22,6 +22,7 @@ body {
   border-width: 0 1px;
   padding: 0 1.5em;
   list-style-type: none;
+  position: relative;
 }
 
 .paper>li {
@@ -31,4 +32,47 @@ body {
 
 .paper>li:last-child {
   border-bottom: none;
+}
+
+.paper:before, .paper:after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 5px;
+}
+
+.paper:before {
+  top: -5px;
+  background:
+    linear-gradient(
+      45deg, transparent 33.333%,
+      #FCFCFC 33.333%, #FCFCFC 66.667%,
+      transparent 66.667%
+    ),
+    linear-gradient(
+      -45deg, transparent 33.333%,
+      #FCFCFC 33.333%, #FCFCFC 66.667%,
+      transparent 66.667%
+    );
+  background-size: 10px 20px;
+  background-position: center top;
+}
+
+.paper:after {
+  bottom: -5px;
+  background:
+    linear-gradient(
+      45deg,transparent 33.333%,
+      #FCFCFC 33.333%, #FCFCFC 66.667%,
+     transparent 66.667%
+    ),
+    linear-gradient(
+      -45deg,transparent 33.333%,
+      #FCFCFC 33.333%, #FCFCFC 66.667%,
+     transparent 66.667%
+    );
+  background-size: 10px 20px;
+  background-position: center bottom;
 }
