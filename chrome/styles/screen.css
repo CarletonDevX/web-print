@@ -124,6 +124,30 @@ h4 {
 .printer-selector {
   color: #000;
   text-decoration: none;
+  position: relative;
+}
+
+.printer-selector:hover {
+  color: #238CCC;
+  text-decoration: none;
+  position: relative;
+}
+
+.printer-selector:hover:after {
+  border-top-color: #238CCC;
+}
+
+.printer-selector:after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  position: absolute;
+  bottom: 0.2em;
+  right: -0.6em;
+  border-width: 0.38em 0.23em 0.23em 0.23em;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
 }
 
 .button {

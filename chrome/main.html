@@ -10,10 +10,6 @@
   <script src="script.js"></script>
 </head>
 <body>
-  <!--<div id="userpass">
-    Username: <input id="username" type="text" name="username" autocomplete="off"><br>
-    Password: <input id="password" input type="password" name="password" autocomplete="off">
-  </div>-->
   <div class="wrapper">
     <ul class="paper">
       <div class="slot"></div>
@@ -22,9 +18,16 @@
         <h1><a href="#" class="printer-selector">Sayles</a></h1>
       </li>
       <li>
+        <div id="userpass">
+          Username: <input id="username" type="text" name="username" autocomplete="off"><br>
+          Password: <input id="password" input type="password" name="password" autocomplete="off">
+        </div>
+      </li>
+      <li><input id="file" type="file" name="datafile" size="100"></li>
+      <li>
         <h4>Drag files here to print<br>or click to browse</h4>
       </li>
-      <!-- <li><input id="file" type="file" name="datafile" size="100"></li> -->
+      <li class="center"><input type="submit" class="button" value="Send to Printer"></li>
     </ul>
 </body>
 </html>
