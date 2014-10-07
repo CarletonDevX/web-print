@@ -5,6 +5,7 @@ html, body {
 body {
   font-family: "Source Sans Pro", sans-serif;
   background-color: #E8E8E8;
+  font-size: 16px;
 }
 
 .wrapper {
@@ -19,4 +20,15 @@ body {
   background-color: #FCFCFC;
   border: 1px #D3D3D3 solid;
   border-width: 0 1px;
+  padding: 0 1.5em;
+  list-style-type: none;
+}
+
+.paper>li {
+  padding: 1.5em 0;
+  border-bottom: 1px solid #D2D2D2;
+}
+
+.paper>li:last-child {
+  border-bottom: none;
 }

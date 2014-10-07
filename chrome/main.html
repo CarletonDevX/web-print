@@ -15,9 +15,8 @@
     Password: <input id="password" input type="password" name="password" autocomplete="off">
   </div>-->
   <div class="wrapper">
-    <div class="paper">
-      Testing
-      <div id="pickprinter">Pick Printer<br>
+    <ul class="paper">
+      <li>
         <select id="printers">
           <option value="CMC201" selected="selected">CMC201</option>
           <option value="CMC301">CMC301</option>
@@ -26,19 +25,10 @@
           <option value="Sayles">Sayles</option>
           <option value="Olin">Olin</option>
         </select>
-      </div>
-      <div id="upload">
-        <p>
-          Please specify a file:<br>
-          <input id="file" type="file" name="datafile" size="100">
-        </p>
-      </div>
-      <div id="submit">
-        <form>
-          <input type="submit" value="Just Print">
-        </form>
-      </div>
-    </div>
-  </div>
+      </li>
+      <li>Meow</li>
+      <li><input id="file" type="file" name="datafile" size="100"></li>
+      <li><input type="submit" value="Send to Printer"></li>
+    </ul>
 </body>
 </html>
