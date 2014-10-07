@@ -1,0 +1,22 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: "Source Sans Pro", sans-serif;
+  background-color: #E8E8E8;
+}
+
+.wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.paper {
+  background-color: #FCFCFC;
+  border: 1px #D3D3D3 solid;
+  border-width: 0 1px;
+}
