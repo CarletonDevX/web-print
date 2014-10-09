@@ -109,6 +109,7 @@ var request1 = function(user, pass) {
     if (foot.indexOf('Invalid username or password') < 0
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
+      storeLoginInfo(user, pass);
       //Seemingly extraneous requests that make it work
       request2();
     } else {
@@ -212,7 +213,14 @@ var stateUploaded = function() {
 
 }
 
-var UIDresponse;
+/******************************
+  Login info storage
+ ******************************/
+
+var storeLoginInfo = function(user, pass){
+  localStorage.setItem('user', user);
+  localStorage.setItem('pass', pass);
+}
 
 /******************************
   Interactivity initialization
@@ -221,6 +229,14 @@ var UIDresponse;
 $(document).ready(function() {
   stateInitial();
   request0();
+
+  if(localStorage.getItem('user') != null){
+    var user = localStorage.getItem('user');
+    var pass = localStorage.getItem('pass');
+    $('#username').val(user);
+    $('#password').val(pass);
+    request1(user, pass);
+  }
 
   $('#userpass input').bind('input propertychange', function() {
       var user = $('#username').val();
