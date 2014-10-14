@@ -31,6 +31,10 @@ var uploadRequest = function (url, data, successHandler) {
   $.ajax({
   url: 'https://print.ads.carleton.edu:9192'+url,
   type: 'POST',
+<<<<<<< HEAD
+=======
+  //xhr: function() {return $.ajaxSettings.xhr();},
+>>>>>>> FETCH_HEAD
   data: data.file,
   success: successHandler,
   error: function (e) {console.log(e);},
@@ -108,7 +112,14 @@ var request1 = function (user, pass) {
     if (foot.indexOf('Invalid username or password') < 0
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
+<<<<<<< HEAD
       setInfoFromResponse(response);
+=======
+<<<<<<< Updated upstream
+      storeLoginInfo(user, pass);
+=======
+>>>>>>> Stashed changes
+>>>>>>> FETCH_HEAD
       //Seemingly extraneous requests that make it work
       request2();
     } else {
@@ -134,7 +145,12 @@ var request3 = function () {
 }
 
 // 4. Navigate to correct printer page - depends on printer
+<<<<<<< HEAD
 var request4 = function (data) {
+=======
+<<<<<<< Updated upstream
+var request4 = function(data) {
+>>>>>>> FETCH_HEAD
   //postRequest()
   console.log("Request4");
   request5(data);
@@ -145,13 +161,28 @@ var request5 = function (data) {
   console.log("Request5");
   postRequest('/app', select_printer_payload, function (response) {
     request6(data);
+=======
+var request4 = function(printer) {
+  //postRequest()
+  console.log("Request4");
+  request5(printer);
+}
+
+// 5. Submit printer selection
+var request5 = function(printer) {
+  console.log("Request5");
+  postRequest('/app', select_printer_payload, function(response) {
+    request6();
+>>>>>>> Stashed changes
   });
 }
 
 
+<<<<<<< Updated upstream
 // 6. Submit print options and account selection - doesn't yet regard data.options
 var request6 = function (data) {
   console.log("Request6");
+<<<<<<< HEAD
   postRequest('/app', print_options_payload, function (response) {
     var uploadUID = '';
     var lines = response.split("\n");
@@ -162,6 +193,25 @@ var request6 = function (data) {
       }
     }
     request7(data, uploadUID);
+=======
+=======
+// 6. Submit print options and account selection
+var request6 = function() {
+  console.log("Request5");
+>>>>>>> Stashed changes
+  postRequest('/app', print_options_payload, function(response) {
+      var uploadUID = '';
+      var lines = response.split("\n");
+      //Pulling out UID for use in the next request
+      for (i = 0; i < lines.length; i++){
+        if (lines[i].indexOf('var uploadUID') > -1){
+          uploadUID = lines[i].substring(lines[i].length-7, lines[i].length-2);
+          console.log(uploadUID);
+        }
+      }
+<<<<<<< Updated upstream
+      request7(data, uploadUID);
+>>>>>>> FETCH_HEAD
   });
 }
 
@@ -169,6 +219,7 @@ var request6 = function (data) {
 var request7 = function (data, uploadUID) {
   console.log("Request7");
   var url = '/upload/'+ uploadUID;
+<<<<<<< HEAD
   uploadRequest(url, data, function(response) {
     request8(data);
   });
@@ -208,6 +259,13 @@ var release = function () {
     } else {
       setTimeout(release, 500);
     }
+=======
+  //debugger
+  uploadRequest(url, data.file, function(response) {
+    console.log(response);
+=======
+>>>>>>> Stashed changes
+>>>>>>> FETCH_HEAD
   });
 }
 
@@ -259,6 +317,7 @@ var stateUploaded = function () {
 
 }
 
+<<<<<<< Updated upstream
 /******************************
   Login info storage
  ******************************/
@@ -267,6 +326,9 @@ var storeLoginInfo = function (user, pass) {
   localStorage.setItem('user', user);
   localStorage.setItem('pass', pass);
 }
+=======
+var UIDresponse;
+>>>>>>> Stashed changes
 
 /******************************
   Interactivity initialization
@@ -277,7 +339,12 @@ $(document).ready(function () {
   request0();
   navigator.geolocation.getCurrentPosition(selectClosestPrinter);
 
+<<<<<<< HEAD
   if(localStorage.getItem('user') != null) {
+=======
+<<<<<<< Updated upstream
+  if(localStorage.getItem('user') != null){
+>>>>>>> FETCH_HEAD
     var user = localStorage.getItem('user');
     var pass = localStorage.getItem('pass');
     $('#username').val(user);
@@ -285,7 +352,13 @@ $(document).ready(function () {
     request1(user, pass);
   }
 
+<<<<<<< HEAD
   $('#userpass input').bind('input propertychange', $.debounce(500, function () {
+=======
+=======
+>>>>>>> Stashed changes
+  $('#userpass input').bind('input propertychange', function() {
+>>>>>>> FETCH_HEAD
       var user = $('#username').val();
       var pass = $('#password').val();
       storeLoginInfo(user, pass);
@@ -306,8 +379,16 @@ $(document).ready(function () {
       console.log("NOT LOGGED IN");
     } else {
       //Begin the series of print requests
+<<<<<<< Updated upstream
       request4(data);
+<<<<<<< HEAD
     }
+=======
+=======
+      request4("3rd CMC");
+>>>>>>> Stashed changes
+      }
+>>>>>>> FETCH_HEAD
   });
 });
 
