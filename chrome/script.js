@@ -29,9 +29,9 @@ var postRequest = function(url, data, successHandler) {
 //UPLOAD a file to the server
 var uploadRequest = function(url, data, successHandler) {
   $.ajax({
-  url: url,
+  url: 'https://print.ads.carleton.edu:9192'+url,
   type: 'POST',
-  xhr: function() {return $.ajaxSettings.xhr();},
+  //xhr: function() {return $.ajaxSettings.xhr();},
   data: data.file,
   success: function(r) {console.log(r);},
   error: function(e) {console.log(e);},
