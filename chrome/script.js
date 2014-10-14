@@ -108,6 +108,7 @@ var request1 = function (user, pass) {
     if (foot.indexOf('Invalid username or password') < 0
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
+      setInfoFromResponse(response);
       //Seemingly extraneous requests that make it work
       request2();
     } else {
@@ -317,6 +318,10 @@ var printers = [
   }
 ];
 
+/******************************
+  Helper functions
+ ******************************/
+
 var selectClosestPrinter = function (location) {
   var lon = location.coords.longitude;
   var lat = location.coords.latitude;
@@ -332,4 +337,14 @@ var selectClosestPrinter = function (location) {
     }
   }
   console.log("Closest printer is " + closest.name);
+}
+
+var setInfoFromResponse = function (response) {
+  var username = $('#username').val();
+  var name = response.match(new RegExp(username + '\\s\\((.+?)\\)'))[1];
+  var balance = parseFloat(response.match(/\$(\d+\.\d+)/)[1]);
+  var percent = balance / 96 * 100;
+  $('.js-name').text(name);
+  $('.js-balance').text(balance);
+  $('.js-used').css('width', '' + percent + '%');
 }
