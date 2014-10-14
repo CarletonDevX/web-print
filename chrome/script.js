@@ -31,6 +31,13 @@ var uploadRequest = function (url, data, successHandler) {
   $.ajax({
   url: 'https://print.ads.carleton.edu:9192'+url,
   type: 'POST',
+  xhr:  function() {  // Custom XMLHttpRequest
+            var myXhr = $.ajaxSettings.xhr();
+            if(myXhr.upload){ // Check if upload property exists
+                myXhr.upload.addEventListener('progress',function () {console.log("In progress...");}, false); // For handling the progress of the upload
+            }
+            return myXhr;
+        },
   data: data.file,
   success: successHandler,
   error: function (e) {console.log(e);},
