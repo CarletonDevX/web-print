@@ -139,13 +139,8 @@ var request4 = function (data) {
   request5(data);
 }
 
-<<<<<<< HEAD
 // 5. Submit printer selection - doesn't yet regard data.printer (default is in payload)
-var request5 = function(data) {
-=======
-// 5. Submit printer selection - doesn't yet regard data.printer
 var request5 = function (data) {
->>>>>>> FETCH_HEAD
   console.log("Request5");
   postRequest('/app', select_printer_payload, function (response) {
     request6(data);
