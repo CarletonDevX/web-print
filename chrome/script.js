@@ -139,13 +139,8 @@ var request4 = function (data) {
   request5(data);
 }
 
-<<<<<<< HEAD
-// 5. Submit printer selection - doesn't yet regard data.printer (default is in payload)
-var request5 = function(data) {
-=======
 // 5. Submit printer selection - doesn't yet regard data.printer
 var request5 = function (data) {
->>>>>>> FETCH_HEAD
   console.log("Request5");
   postRequest('/app', select_printer_payload, function (response) {
     request6(data);
@@ -169,6 +164,7 @@ var request6 = function (data) {
   });
 }
 
+// 7. Upload pt. 1
 var request7 = function (data, uploadUID) {
   console.log("Request7");
   var url = '/upload/'+ uploadUID;
@@ -177,11 +173,52 @@ var request7 = function (data, uploadUID) {
   });
 }
 
-var request8 = function(data) {
+// 8. Upload pt. 2
+var request8 = function (data) {
   console.log("Request8");
   postRequest('/app', upload_file_payload, function(response) {
-    console.log("Upload complete");
+    console.log("Uploaded.");
+    //release();
   });
+}
+
+// Repeatedly tries to release files from queue
+var release = function () {
+  console.log("Releasing");
+  request9(function (response) {
+    var lines = response.split("\n");
+    var url = null;
+    for (i = 0; i < lines.length; i++) {
+      if (lines[i].indexOf('UserReleaseJobs/$ReleaseStationJobs.release') > -1) {
+        url = lines[i];
+      }
+    }
+    if (url != null){
+      var hrefs = [];
+      var words = url.split(" ");
+      for (i = 0; i < words.length; i++) {
+        if (words[i].indexOf('href') > -1) {
+          console.log(words[i]);
+          hrefs.push(words[i]);
+        }
+      }
+      var finalurl = hrefs[0].substring(6, lines[i].length-1).replace('&amp;', '&');
+      request10(finalurl);
+    } else {
+      setTimeout(release, 500);
+    }
+  });
+}
+
+// Checks if documents are ready for release
+var request9 = function (successCallback) {
+  getRequest('/app?service=page/UserReleaseJobs', {}, successCallback);
+}
+
+var request10 = function (url) {
+  console.log("Request10");
+  console.log(url);
+  //ALMOST DONE!
 }
 
 /******************************
