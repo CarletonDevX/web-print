@@ -109,7 +109,6 @@ var request1 = function(user, pass) {
     if (foot.indexOf('Invalid username or password') < 0
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
-      storeLoginInfo(user, pass);
       //Seemingly extraneous requests that make it work
       request2();
     } else {
@@ -239,11 +238,14 @@ $(document).ready(function() {
     request1(user, pass);
   }
 
-  $('#userpass input').bind('input propertychange', function() {
+  $('#userpass input').bind('input propertychange', $.debounce(500, function() {
       var user = $('#username').val();
       var pass = $('#password').val();
-      request1(user, pass);
-    });
+      storeLoginInfo(user, pass);
+      if (user && pass) {
+        request1(user, pass);
+      }
+    }));
 
   $("#printButton").click(function() {
     var data = {
@@ -314,7 +316,6 @@ var printers = [
 var selectClosestPrinter = function(location) {
   var lon = location.coords.longitude;
   var lat = location.coords.latitude;
-  console.log('' + lat + ', ' + lon);
   var closest = null;
   var closest_distance_sq = Infinity;
   for (var i in printers) {
