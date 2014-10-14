@@ -31,7 +31,6 @@ var uploadRequest = function(url, data, successHandler) {
   $.ajax({
   url: 'https://print.ads.carleton.edu:9192'+url,
   type: 'POST',
-  //xhr: function() {return $.ajaxSettings.xhr();},
   data: data.file,
   success: function(r) {console.log(r);},
   error: function(e) {console.log(e);},
@@ -159,7 +158,6 @@ var request6 = function(data) {
       for (i = 0; i < lines.length; i++){
         if (lines[i].indexOf('var uploadUID') > -1){
           uploadUID = lines[i].substring(lines[i].length-7, lines[i].length-2);
-          console.log(uploadUID);
         }
       }
       request7(data, uploadUID);
@@ -170,7 +168,7 @@ var request7 = function(data, uploadUID) {
   console.log("Request7");
   var url = '/upload/'+ uploadUID;
   //debugger
-  uploadRequest(url, data.file, function(response) {
+  uploadRequest(url, data, function(response) {
     console.log(response);
   });
 }
@@ -253,7 +251,7 @@ $(document).ready(function() {
         password: $("#password").val(),
         printer: $("#printers").val(),
         copies: 1,
-        file: new FormData($("#fileform")[0])
+        file: new FormData($('form')[0])
     };
     if(sessionState != 3){
       console.log("NOT LOGGED IN");
