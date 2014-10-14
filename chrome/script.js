@@ -108,6 +108,7 @@ var request1 = function (user, pass) {
     if (foot.indexOf('Invalid username or password') < 0
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
+      setInfoFromResponse(response);
       //Seemingly extraneous requests that make it work
       request2();
     } else {
@@ -139,7 +140,7 @@ var request4 = function (data) {
   request5(data);
 }
 
-// 5. Submit printer selection - doesn't yet regard data.printer
+// 5. Submit printer selection - doesn't yet regard data.printer (default is in payload)
 var request5 = function (data) {
   console.log("Request5");
   postRequest('/app', select_printer_payload, function (response) {
@@ -151,7 +152,7 @@ var request5 = function (data) {
 // 6. Submit print options and account selection - doesn't yet regard data.options
 var request6 = function (data) {
   console.log("Request6");
-  postRequest('/app', print_options_payload, function(response) {
+  postRequest('/app', print_options_payload, function (response) {
     var uploadUID = '';
     var lines = response.split("\n");
     //Pulling out UID for use in the next request
@@ -359,6 +360,10 @@ var printers = [
   }
 ];
 
+/******************************
+  Helper functions
+ ******************************/
+
 var selectClosestPrinter = function (location) {
   var lon = location.coords.longitude;
   var lat = location.coords.latitude;
@@ -374,4 +379,14 @@ var selectClosestPrinter = function (location) {
     }
   }
   console.log("Closest printer is " + closest.name);
+}
+
+var setInfoFromResponse = function (response) {
+  var username = $('#username').val();
+  var name = response.match(new RegExp(username + '\\s\\((.+?)\\)'))[1];
+  var balance = parseFloat(response.match(/\$(\d+\.\d+)/)[1]);
+  var percent = balance / 96 * 100;
+  $('.js-name').text(name);
+  $('.js-balance').text(balance);
+  $('.js-used').css('width', '' + percent + '%');
 }
