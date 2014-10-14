@@ -32,7 +32,7 @@ var uploadRequest = function(url, data, successHandler) {
   url: 'https://print.ads.carleton.edu:9192'+url,
   type: 'POST',
   data: data.file,
-  success: function(r) {console.log(r);},
+  success: successHandler,
   error: function(e) {console.log(e);},
   cache: false,
   contentType: false,
@@ -139,7 +139,7 @@ var request4 = function(data) {
   request5(data);
 }
 
-// 5. Submit printer selection - doesn't yet regard data.printer
+// 5. Submit printer selection - doesn't yet regard data.printer (default is in payload)
 var request5 = function(data) {
   console.log("Request5");
   postRequest('/app', select_printer_payload, function(response) {
@@ -169,7 +169,14 @@ var request7 = function(data, uploadUID) {
   var url = '/upload/'+ uploadUID;
   //debugger
   uploadRequest(url, data, function(response) {
-    console.log(response);
+    request8(data);
+  });
+}
+
+var request8 = function(data) {
+  console.log("Request8");
+  postRequest('/app', upload_file_payload, function(response) {
+    console.log("Upload complete");
   });
 }
 
