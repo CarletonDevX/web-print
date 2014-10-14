@@ -156,7 +156,7 @@ var request5 = function (data) {
 // 6. Submit print options and account selection - doesn't yet regard data.options
 var request6 = function (data) {
   console.log("Request6");
-  postRequest('/app', print_options_payload, function(response) {
+  postRequest('/app', print_options_payload, function (response) {
     var uploadUID = '';
     var lines = response.split("\n");
     //Pulling out UID for use in the next request
