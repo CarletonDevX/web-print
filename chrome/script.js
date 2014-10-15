@@ -227,7 +227,6 @@ var request10 = function (url) {
   getRequest(url, {}, function (response) {
     console.log("Printed!")
   });
-  //ALMOST DONE!
 }
 
 /******************************
@@ -268,12 +267,20 @@ var stateUploaded = function () {
 }
 
 /******************************
-  Login info storage
+  Login info storage and file validation
  ******************************/
 
 var storeLoginInfo = function (user, pass) {
   localStorage.setItem('user', user);
   localStorage.setItem('pass', pass);
+}
+
+var validExts = ['xlam','xls','xlsb','xlsm','xlsx','xltm','xltx','pot','potm','potx','ppam','pps','ppsm',
+                'ppsx','ppt','pptm','pptx','doc','docm','docx','dot','dotm','dotx','rtf','pdf','xps'];
+
+//http://stackoverflow.com/a/17355937
+var isValid = function (file) {
+    return (new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$')).test(file.name);
 }
 
 /******************************
@@ -304,16 +311,17 @@ $(document).ready(function () {
 
   var fileToUpload;
 
-  $(':file').change(function(){
+  $(':file').change(function() {
     fileToUpload = this.files[0];
-    console.log("File: " + fileToUpload.name);
   });
 
   $("#printButton").click(function () {
     if(sessionState != 3) {
       console.log("NOT LOGGED IN");
     } else if (fileToUpload == null) {
-      console.log("NO FILE UPLOADED")
+      console.log("NO FILE UPLOADED");
+    } else if (! isValid(fileToUpload)) {
+      console.log("INVALID FILE EXTENSION");
     } else {
       var formdata = new FormData();
       formdata.append(fileToUpload.name, fileToUpload);
