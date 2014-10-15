@@ -301,18 +301,28 @@ $(document).ready(function () {
       }
     }));
 
+  var fileToUpload;
+
+  $(':file').change(function(){
+    fileToUpload = this.files[0];
+    console.log("File: " + fileToUpload.name);
+  });
+
   $("#printButton").click(function () {
-    var data = {
+    if(sessionState != 3) {
+      console.log("NOT LOGGED IN");
+    } else if (fileToUpload == null) {
+      console.log("NO FILE UPLOADED")
+    } else {
+      var formdata = new FormData();
+      formdata.append("File", fileToUpload);
+      var data = {
       username: $("#username").val(),
       password: $("#password").val(),
       printer: $("#printers").val(),
       copies: 1,
-      file: new FormData($("#fileform")[0])
-    };
-    if(sessionState != 3) {
-      console.log("NOT LOGGED IN");
-    } else {
-      //Begin the series of print requests
+      file: formdata
+      };
       request4(data);
     }
   });
