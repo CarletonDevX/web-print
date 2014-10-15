@@ -186,7 +186,7 @@ var request8 = function (data) {
   console.log("Request8");
   postRequest('/app', upload_file_payload, function(response) {
     console.log("Uploaded.");
-    //release();
+    release();
   });
 }
 
@@ -206,11 +206,10 @@ var release = function () {
       var words = url.split(" ");
       for (i = 0; i < words.length; i++) {
         if (words[i].indexOf('href') > -1) {
-          console.log(words[i]);
           hrefs.push(words[i]);
         }
       }
-      var finalurl = hrefs[0].substring(6, lines[i].length-1).replace('&amp;', '&');
+      var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
       request10(finalurl);
     } else {
       setTimeout(release, 500);
@@ -225,7 +224,9 @@ var request9 = function (successCallback) {
 
 var request10 = function (url) {
   console.log("Request10");
-  console.log(url);
+  getRequest(url, {}, function (response) {
+    console.log("Printed!")
+  });
   //ALMOST DONE!
 }
 
@@ -315,7 +316,7 @@ $(document).ready(function () {
       console.log("NO FILE UPLOADED")
     } else {
       var formdata = new FormData();
-      formdata.append("File", fileToUpload);
+      formdata.append(fileToUpload.name, fileToUpload);
       var data = {
       username: $("#username").val(),
       password: $("#password").val(),
