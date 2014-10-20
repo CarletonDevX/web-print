@@ -116,7 +116,6 @@ var request1 = function (user, pass) {
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
       setInfoFromResponse(response);
-      //Seemingly extraneous requests that make it work
       request2();
     } else {
       stateDenied();
@@ -145,7 +144,7 @@ var findPrinter = function (data, attempt) {
     var select = response.match(re);
     if (select != null) {
       console.log(select[1]);
-      //request3(data, select[1]);
+      request3(data, select[1]);
     } else {
       console.log("Printer not found on this page.");
       if (attempt < 3) {
@@ -291,7 +290,11 @@ var validExts = ['xlam','xls','xlsb','xlsm','xlsx','xltm','xltx','pot','potm','p
 
 //http://stackoverflow.com/a/17355937
 var isValid = function (file) {
-    return (new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$')).test(file.name);
+    if (file.size >= 100000000) {
+      return false;
+    } else {
+      return (new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$')).test(file.name);
+    }
 }
 
 /******************************
