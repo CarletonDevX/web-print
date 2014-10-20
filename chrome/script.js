@@ -288,7 +288,7 @@ var storeLoginInfo = function (user, pass) {
 var validExts = ['xlam','xls','xlsb','xlsm','xlsx','xltm','xltx','pot','potm','potx','ppam','pps','ppsm',
                 'ppsx','ppt','pptm','pptx','doc','docm','docx','dot','dotm','dotx','rtf','pdf','xps'];
 
-//http://stackoverflow.com/a/17355937
+//Regex from http://stackoverflow.com/a/17355937
 var isValid = function (file) {
     if (file.size >= 100000000) {
       return false;
@@ -343,7 +343,7 @@ $(document).ready(function () {
         username: $("#username").val(),
         password: $("#password").val(),
         //printer: $("#printers").val(),
-        printer: 'print\\WILL119-X4600',  //We need to cut "virtual" off the name.
+        printer: 'print\\CMC305-X4600',  //We need to cut "virtual" off the name.
         copies: 1,
         file: formdata
       };
