@@ -83,7 +83,7 @@ var print_options_payload = {
   'sp': 'S0',
   'Form0': 'copies,$RadioGroup,$TextField$0,$Submit,$Submit$0',
   'copies': '1',
-  '$RadioGroup': '7',
+  '$RadioGroup': '0',
   '$Submit': '3. Upload Documents »'
 };
 
@@ -177,23 +177,21 @@ var request3 = function (data, select) {
   var newpayload = select_printer_payload;
   newpayload['$RadioGroup'] = select;
   postRequest('/app', newpayload, function (response) {
-    request4(data);
+    request4(data, select);
   });
 }
 
 
 // Submit print options and account selection - doesn't yet regard data.options
-var request4 = function (data) {
+var request4 = function (data, select) {
   console.log("Request4");
-  postRequest('/app', print_options_payload, function (response) {
-    var uploadUID = '';
-    var lines = response.split("\n");
+  var newpayload = print_options_payload;
+  newpayload['$RadioGroup'] = select;
+  postRequest('/app', newpayload, function (response) {
     //Pulling out UID for use in the next request
-    for (i = 0; i < lines.length; i++) {
-      if (lines[i].indexOf('var uploadUID') > -1) {
-        uploadUID = lines[i].substring(lines[i].length-7, lines[i].length-2);
-      }
-    }
+    var re = new RegExp("uploadUID = \'([0-9]+)\'");
+    var uploadUID = response.match(re)[1];
+    console.log(uploadUID);
     request5(data, uploadUID);
   });
 }
@@ -236,7 +234,7 @@ var release = function () {
         }
       }
       var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-      //Write a regex for this...
+      //Write a regex for this..?
       request8(finalurl);
     } else {
       setTimeout(release, 500);
@@ -356,7 +354,7 @@ $(document).ready(function () {
         username: $("#username").val(),
         password: $("#password").val(),
         //printer: $("#printers").val(),
-        printer: 'print\\CMC305-X4600',
+        printer: 'print\\SAYL-Public-X4600',
         copies: 1,
         file: formdata
       };
