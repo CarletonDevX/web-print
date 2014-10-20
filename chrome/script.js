@@ -131,15 +131,6 @@ var request2 = function () {
     return response;
   });
 }
-/*
-// 3. Submit job page
-var request3 = function () {
-  console.log("Request3");
-  getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
-    return response;
-  });
-}
-*/
 
 var startPrint = function (data) {
   findPrinter(data, 1);
@@ -150,17 +141,12 @@ var findPrinter = function (data, attempt) {
   console.log("Finding printer...");
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
   getRequest(url, {}, function (response) {
-    var lines = response.split("\n");
-    var found = false;
-    for (i = 0; i < lines.length; i++) {
-      if (lines[i].indexOf(data.printer) > -1) {
-        var re = new RegExp("value=\"(.)\"");
-        var select = lines[i].match(re)[1];
-        found = true;
-        request3(data, select);
-      }
-    }
-    if (! found) {
+    var re = new RegExp("value=\"([0-9]+)\".*\r" + data.printer.replace("\\", "\\\\"));
+    var select = response.match(re);
+    if (select != null) {
+      console.log(select[1]);
+      //request3(data, select[1]);
+    } else {
       console.log("Printer not found on this page.");
       if (attempt < 3) {
         findPrinter(data, (attempt + 1));
@@ -250,7 +236,7 @@ var request7 = function (successCallback) {
 var request8 = function (url) {
   console.log("Request8");
   getRequest(url, {}, function (response) {
-    console.log("Printing!")
+    console.log("Printing!");
   });
 }
 
@@ -346,7 +332,7 @@ $(document).ready(function () {
     } else if (fileToUpload == null) {
       console.log("NO FILE UPLOADED");
     } else if (! isValid(fileToUpload)) {
-      console.log("INVALID FILE EXTENSION");
+      console.log("INVALID FILE");
     } else {
       var formdata = new FormData();
       formdata.append(fileToUpload.name, fileToUpload);
@@ -354,7 +340,7 @@ $(document).ready(function () {
         username: $("#username").val(),
         password: $("#password").val(),
         //printer: $("#printers").val(),
-        printer: 'print\\SAYL-Public-X4600',
+        printer: 'print\\WILL119-X4600',  //We need to cut "virtual" off the name.
         copies: 1,
         file: formdata
       };
