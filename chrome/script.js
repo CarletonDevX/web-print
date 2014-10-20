@@ -74,7 +74,7 @@ var select_printer_payload = {
   '$Hidden': '',
   '$Hidden$0': '',
   '$TextField': '',
-  '$RadioGroup': '7',
+  '$RadioGroup': '0',
   '$Submit$1': '2. Print Options and Account Selection »'
 };
 
@@ -83,7 +83,7 @@ var print_options_payload = {
   'sp': 'S0',
   'Form0': 'copies,$RadioGroup,$TextField$0,$Submit,$Submit$0',
   'copies': '1',
-  '$RadioGroup': '7',
+  '$RadioGroup': '0',
   '$Submit': '3. Upload Documents »'
 };
 
@@ -99,7 +99,7 @@ var upload_file_payload = {
   Requests
  ******************************/
 
-// 0. Begin session by accessing login page
+// Begin session by accessing login page
 var request0 = function () {
   console.log("Request0");
   getRequest('/app', {}, function () {
@@ -107,7 +107,7 @@ var request0 = function () {
   });
 };
 
-// 1. Log in with credentials
+// Log in with credentials
 var request1 = function (user, pass) {
   console.log("Request1");
   postRequest('/app', loginData(user, pass), function (response) {
@@ -116,7 +116,6 @@ var request1 = function (user, pass) {
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
       setInfoFromResponse(response);
-      //Seemingly extraneous requests that make it work
       request2();
     } else {
       stateDenied();
@@ -124,66 +123,75 @@ var request1 = function (user, pass) {
   });
 }
 
-// 2. User web print page
+// User web print page
 var request2 = function () {
   console.log("Request2");
   getRequest('/app?service=page/UserWebPrint', web_print_payload, function (response) {
-    request3();
+    return response;
   });
 }
 
-// 3. Submit job
-var request3 = function () {
+var startPrint = function (data) {
+  findPrinter(data, 1);
+}
+
+// Navigate to correct printer page
+var findPrinter = function (data, attempt) {
+  console.log("Finding printer...");
+  var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
+  getRequest(url, {}, function (response) {
+    var re = new RegExp("value=\"([0-9]+)\".*\r" + data.printer.replace("\\", "\\\\").split(" ")[0]);  //split gets rid of (virtual)
+    var select = response.match(re);
+    if (select != null) {
+      request3(data, select[1]);
+    } else {
+      console.log("Printer not found on page " + attempt);
+      if (attempt < 3) {
+        findPrinter(data, (attempt + 1));
+      } else {
+        console.log("Printer not found.");
+      }
+    }
+  });
+}
+
+// Submit printer selection
+var request3 = function (data, select) {
   console.log("Request3");
-  getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
-    return response; //Anything I should be doing here?
+  var newpayload = select_printer_payload;
+  newpayload['$RadioGroup'] = select;
+  postRequest('/app', newpayload, function (response) {
+    request4(data, select);
   });
 }
 
-// 4. Navigate to correct printer page - depends on printer
-var request4 = function (data) {
-  //postRequest()
+
+// Submit print options and account selection - doesn't yet regard data.options
+var request4 = function (data, select) {
   console.log("Request4");
-  request5(data);
+  var newpayload = print_options_payload;
+  newpayload['$RadioGroup'] = select;
+  postRequest('/app', newpayload, function (response) {
+    //Pulling out UID for use in the next request
+    var re = new RegExp("uploadUID = \'([0-9]+)\'");
+    var uploadUID = response.match(re)[1];
+    //console.log(uploadUID);
+    request5(data, uploadUID);
+  });
 }
 
-// 5. Submit printer selection - doesn't yet regard data.printer (default is in payload)
-var request5 = function (data) {
+// Upload pt. 1
+var request5 = function (data, uploadUID) {
   console.log("Request5");
-  postRequest('/app', select_printer_payload, function (response) {
+  var url = '/upload/'+ uploadUID;
+  uploadRequest(url, data, function(response) {
     request6(data);
   });
 }
 
-
-// 6. Submit print options and account selection - doesn't yet regard data.options
+// Upload pt. 2
 var request6 = function (data) {
   console.log("Request6");
-  postRequest('/app', print_options_payload, function (response) {
-    var uploadUID = '';
-    var lines = response.split("\n");
-    //Pulling out UID for use in the next request
-    for (i = 0; i < lines.length; i++) {
-      if (lines[i].indexOf('var uploadUID') > -1) {
-        uploadUID = lines[i].substring(lines[i].length-7, lines[i].length-2);
-      }
-    }
-    request7(data, uploadUID);
-  });
-}
-
-// 7. Upload pt. 1
-var request7 = function (data, uploadUID) {
-  console.log("Request7");
-  var url = '/upload/'+ uploadUID;
-  uploadRequest(url, data, function(response) {
-    request8(data);
-  });
-}
-
-// 8. Upload pt. 2
-var request8 = function (data) {
-  console.log("Request8");
   postRequest('/app', upload_file_payload, function(response) {
     console.log("Uploaded.");
     release();
@@ -193,7 +201,7 @@ var request8 = function (data) {
 // Repeatedly tries to release files from queue
 var release = function () {
   console.log("Releasing");
-  request9(function (response) {
+  request7(function (response) {
     var lines = response.split("\n");
     var url = null;
     for (i = 0; i < lines.length; i++) {
@@ -204,13 +212,14 @@ var release = function () {
     if (url != null){
       var hrefs = [];
       var words = url.split(" ");
+      //Write a regex for this..?
       for (i = 0; i < words.length; i++) {
         if (words[i].indexOf('href') > -1) {
           hrefs.push(words[i]);
         }
       }
       var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-      request10(finalurl);
+      request8(finalurl);
     } else {
       setTimeout(release, 500);
     }
@@ -218,14 +227,28 @@ var release = function () {
 }
 
 // Checks if documents are ready for release
-var request9 = function (successCallback) {
+var request7 = function (successCallback) {
   getRequest('/app?service=page/UserReleaseJobs', {}, successCallback);
 }
 
-var request10 = function (url) {
-  console.log("Request10");
+var request8 = function (url) {
+  console.log("Request8");
   getRequest(url, {}, function (response) {
-    console.log("Printed!")
+    var re = new RegExp("<a href=.*sp=(.*)\">");
+    var printname = response.match(re);
+    if (printname != null) {
+      request9(printname[1]);
+    }
+  });
+}
+
+//For releasing from virtual printers
+var request9 = function (printname) {
+  console.log("Request9");
+  //console.log(printname);
+  var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
+  getRequest(url, {}, function (response) {
+    return response;
   });
 }
 
@@ -278,9 +301,13 @@ var storeLoginInfo = function (user, pass) {
 var validExts = ['xlam','xls','xlsb','xlsm','xlsx','xltm','xltx','pot','potm','potx','ppam','pps','ppsm',
                 'ppsx','ppt','pptm','pptx','doc','docm','docx','dot','dotm','dotx','rtf','pdf','xps'];
 
-//http://stackoverflow.com/a/17355937
+//Regex from http://stackoverflow.com/a/17355937
 var isValid = function (file) {
-    return (new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$')).test(file.name);
+    if (file.size >= 100000000) {
+      return false;
+    } else {
+      return (new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$')).test(file.name);
+    }
 }
 
 /******************************
@@ -292,7 +319,7 @@ $(document).ready(function () {
   request0();
   navigator.geolocation.getCurrentPosition(selectClosestPrinter);
 
-  if(localStorage.getItem('user') != null) {
+  if (localStorage.getItem('user') != null) {
     var user = localStorage.getItem('user');
     var pass = localStorage.getItem('pass');
     $('#username').val(user);
@@ -316,23 +343,24 @@ $(document).ready(function () {
   });
 
   $("#printButton").click(function () {
-    if(sessionState != 3) {
+    if (sessionState != 3) {
       console.log("NOT LOGGED IN");
     } else if (fileToUpload == null) {
       console.log("NO FILE UPLOADED");
     } else if (! isValid(fileToUpload)) {
-      console.log("INVALID FILE EXTENSION");
+      console.log("INVALID FILE");
     } else {
       var formdata = new FormData();
       formdata.append(fileToUpload.name, fileToUpload);
       var data = {
-      username: $("#username").val(),
-      password: $("#password").val(),
-      printer: $("#printers").val(),
-      copies: 1,
-      file: formdata
+        username: $("#username").val(),
+        password: $("#password").val(),
+        //printer: $("#printers").val(),
+        printer: 'print\\SAYL-Public-X4600 (virtual)',
+        copies: 1,
+        file: formdata
       };
-      request4(data);
+      startPrint(data);
     }
   });
 });
