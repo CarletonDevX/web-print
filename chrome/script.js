@@ -74,7 +74,7 @@ var select_printer_payload = {
   '$Hidden': '',
   '$Hidden$0': '',
   '$TextField': '',
-  '$RadioGroup': '7',
+  '$RadioGroup': '0',
   '$Submit$1': '2. Print Options and Account Selection »'
 };
 
@@ -99,7 +99,7 @@ var upload_file_payload = {
   Requests
  ******************************/
 
-// 0. Begin session by accessing login page
+// Begin session by accessing login page
 var request0 = function () {
   console.log("Request0");
   getRequest('/app', {}, function () {
@@ -107,7 +107,7 @@ var request0 = function () {
   });
 };
 
-// 1. Log in with credentials
+// Log in with credentials
 var request1 = function (user, pass) {
   console.log("Request1");
   postRequest('/app', loginData(user, pass), function (response) {
@@ -124,41 +124,67 @@ var request1 = function (user, pass) {
   });
 }
 
-// 2. User web print page
+// User web print page
 var request2 = function () {
   console.log("Request2");
   getRequest('/app?service=page/UserWebPrint', web_print_payload, function (response) {
-    request3();
+    return response;
   });
 }
-
-// 3. Submit job
+/*
+// 3. Submit job page
 var request3 = function () {
   console.log("Request3");
   getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
-    return response; //Anything I should be doing here?
+    return response;
+  });
+}
+*/
+
+var startPrint = function (data) {
+  findPrinter(data, 1);
+}
+
+// Navigate to correct printer page
+var findPrinter = function (data, attempt) {
+  console.log("Finding printer...");
+  var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
+  getRequest(url, {}, function (response) {
+    var lines = response.split("\n");
+    var found = false;
+    for (i = 0; i < lines.length; i++) {
+      if (lines[i].indexOf(data.printer) > -1) {
+        var re = new RegExp("value=\"(.)\"");
+        var select = lines[i].match(re)[1];
+        found = true;
+        request3(data, select);
+      }
+    }
+    if (! found) {
+      console.log("Printer not found on this page.");
+      if (attempt < 3) {
+        findPrinter(data, (attempt + 1));
+      } else {
+        console.log("Printer not found.");
+      }
+    }
   });
 }
 
-// 4. Navigate to correct printer page - depends on printer
+// Submit printer selection
+var request3 = function (data, select) {
+  console.log("Request3");
+  var newpayload = select_printer_payload;
+  newpayload['$RadioGroup'] = select;
+  postRequest('/app', newpayload, function (response) {
+    request4(data);
+  });
+}
+
+
+// Submit print options and account selection - doesn't yet regard data.options
 var request4 = function (data) {
-  //postRequest()
   console.log("Request4");
-  request5(data);
-}
-
-// 5. Submit printer selection - doesn't yet regard data.printer (default is in payload)
-var request5 = function (data) {
-  console.log("Request5");
-  postRequest('/app', select_printer_payload, function (response) {
-    request6(data);
-  });
-}
-
-
-// 6. Submit print options and account selection - doesn't yet regard data.options
-var request6 = function (data) {
-  console.log("Request6");
   postRequest('/app', print_options_payload, function (response) {
     var uploadUID = '';
     var lines = response.split("\n");
@@ -168,22 +194,22 @@ var request6 = function (data) {
         uploadUID = lines[i].substring(lines[i].length-7, lines[i].length-2);
       }
     }
-    request7(data, uploadUID);
+    request5(data, uploadUID);
   });
 }
 
-// 7. Upload pt. 1
-var request7 = function (data, uploadUID) {
-  console.log("Request7");
+// Upload pt. 1
+var request5 = function (data, uploadUID) {
+  console.log("Request5");
   var url = '/upload/'+ uploadUID;
   uploadRequest(url, data, function(response) {
-    request8(data);
+    request6(data);
   });
 }
 
-// 8. Upload pt. 2
-var request8 = function (data) {
-  console.log("Request8");
+// Upload pt. 2
+var request6 = function (data) {
+  console.log("Request6");
   postRequest('/app', upload_file_payload, function(response) {
     console.log("Uploaded.");
     release();
@@ -193,7 +219,7 @@ var request8 = function (data) {
 // Repeatedly tries to release files from queue
 var release = function () {
   console.log("Releasing");
-  request9(function (response) {
+  request7(function (response) {
     var lines = response.split("\n");
     var url = null;
     for (i = 0; i < lines.length; i++) {
@@ -210,7 +236,8 @@ var release = function () {
         }
       }
       var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-      request10(finalurl);
+      //Write a regex for this...
+      request8(finalurl);
     } else {
       setTimeout(release, 500);
     }
@@ -218,14 +245,14 @@ var release = function () {
 }
 
 // Checks if documents are ready for release
-var request9 = function (successCallback) {
+var request7 = function (successCallback) {
   getRequest('/app?service=page/UserReleaseJobs', {}, successCallback);
 }
 
-var request10 = function (url) {
-  console.log("Request10");
+var request8 = function (url) {
+  console.log("Request8");
   getRequest(url, {}, function (response) {
-    console.log("Printed!")
+    console.log("Printing!")
   });
 }
 
@@ -292,7 +319,7 @@ $(document).ready(function () {
   request0();
   navigator.geolocation.getCurrentPosition(selectClosestPrinter);
 
-  if(localStorage.getItem('user') != null) {
+  if (localStorage.getItem('user') != null) {
     var user = localStorage.getItem('user');
     var pass = localStorage.getItem('pass');
     $('#username').val(user);
@@ -316,7 +343,7 @@ $(document).ready(function () {
   });
 
   $("#printButton").click(function () {
-    if(sessionState != 3) {
+    if (sessionState != 3) {
       console.log("NOT LOGGED IN");
     } else if (fileToUpload == null) {
       console.log("NO FILE UPLOADED");
@@ -326,13 +353,14 @@ $(document).ready(function () {
       var formdata = new FormData();
       formdata.append(fileToUpload.name, fileToUpload);
       var data = {
-      username: $("#username").val(),
-      password: $("#password").val(),
-      printer: $("#printers").val(),
-      copies: 1,
-      file: formdata
+        username: $("#username").val(),
+        password: $("#password").val(),
+        //printer: $("#printers").val(),
+        printer: 'print\\CMC305-X4600',
+        copies: 1,
+        file: formdata
       };
-      request4(data);
+      startPrint(data);
     }
   });
 });
