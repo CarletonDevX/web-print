@@ -140,13 +140,12 @@ var findPrinter = function (data, attempt) {
   console.log("Finding printer...");
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
   getRequest(url, {}, function (response) {
-    var re = new RegExp("value=\"([0-9]+)\".*\r" + data.printer.replace("\\", "\\\\"));
+    var re = new RegExp("value=\"([0-9]+)\".*\r" + data.printer.replace("\\", "\\\\").split(" ")[0]);  //split gets rid of (virtual)
     var select = response.match(re);
     if (select != null) {
-      console.log(select[1]);
       request3(data, select[1]);
     } else {
-      console.log("Printer not found on this page.");
+      console.log("Printer not found on page " + attempt);
       if (attempt < 3) {
         findPrinter(data, (attempt + 1));
       } else {
@@ -176,7 +175,7 @@ var request4 = function (data, select) {
     //Pulling out UID for use in the next request
     var re = new RegExp("uploadUID = \'([0-9]+)\'");
     var uploadUID = response.match(re)[1];
-    console.log(uploadUID);
+    //console.log(uploadUID);
     request5(data, uploadUID);
   });
 }
@@ -213,13 +212,13 @@ var release = function () {
     if (url != null){
       var hrefs = [];
       var words = url.split(" ");
+      //Write a regex for this..?
       for (i = 0; i < words.length; i++) {
         if (words[i].indexOf('href') > -1) {
           hrefs.push(words[i]);
         }
       }
       var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-      //Write a regex for this..?
       request8(finalurl);
     } else {
       setTimeout(release, 500);
@@ -235,7 +234,21 @@ var request7 = function (successCallback) {
 var request8 = function (url) {
   console.log("Request8");
   getRequest(url, {}, function (response) {
-    console.log("Printing!");
+    var re = new RegExp("<a href=.*sp=(.*)\">");
+    var printname = response.match(re);
+    if (printname != null) {
+      request9(printname[1]);
+    }
+  });
+}
+
+//For releasing from virtual printers
+var request9 = function (printname) {
+  console.log("Request9");
+  //console.log(printname);
+  var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
+  getRequest(url, {}, function (response) {
+    return response;
   });
 }
 
@@ -343,7 +356,7 @@ $(document).ready(function () {
         username: $("#username").val(),
         password: $("#password").val(),
         //printer: $("#printers").val(),
-        printer: 'print\\CMC305-X4600',  //We need to cut "virtual" off the name.
+        printer: 'print\\SAYL-Public-X4600 (virtual)',
         copies: 1,
         file: formdata
       };
