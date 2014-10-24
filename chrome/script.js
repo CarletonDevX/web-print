@@ -257,8 +257,6 @@ var request9 = function (printname) {
   State changes
  ******************************/
 
-var sessionState;
-
 // 0. Page load
 var stateInitial = function () {
   sessionState = 0;
@@ -308,11 +306,20 @@ var isValid = function (file) {
     }
 }
 
+/*************************
+  Global Variables
+**************************/
+
+var sessionState;
+var fileToUpload;
+var closestPrinter;
+
 /******************************
   Interactivity initialization
  ******************************/
 
 $(document).ready(function () {
+
   stateInitial();
   request0();
   navigator.geolocation.getCurrentPosition(selectClosestPrinter);
@@ -333,8 +340,6 @@ $(document).ready(function () {
         request1(user, pass);
       }
     }));
-
-  var fileToUpload;
 
   $(':file').change(function() {
     fileToUpload = this.files[0];
@@ -358,7 +363,7 @@ $(document).ready(function () {
         username: $("#username").val(),
         password: $("#password").val(),
         //printer: $("#printers").val(),
-        printer: 'print\\SAYL-Public-X4600 (virtual)',
+        printer: closestPrinter.long_name,
         copies: 1,
         file: formdata
       };
@@ -434,7 +439,8 @@ var selectClosestPrinter = function (location) {
       closest = printers[i];
     }
   }
-  console.log("Closest printer is " + closest.name);
+  closestPrinter = closest;
+  console.log("Closest printer is " + closestPrinter.name);
 }
 
 var setInfoFromResponse = function (response) {
