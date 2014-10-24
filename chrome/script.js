@@ -271,13 +271,15 @@ var stateReady = function () {
 // 2. Login attempt failed
 var stateDenied = function () {
   sessionState = 2;
-  $('#userpass input').css('border-color', 'red');
+  $('.js-login input').addClass('invalid');
+  $('.js-login input').removeClass('valid');
 }
 
 // 3. Logged in
 var stateLogin = function () {
   sessionState = 3;
-  $('#userpass input').css('border-color', 'cyan');
+  $('.js-login input').addClass('valid');
+  $('.js-login input').removeClass('invalid');
 }
 
 // 4. Printing
@@ -327,14 +329,14 @@ $(document).ready(function () {
   if (localStorage.getItem('user') != null) {
     var user = localStorage.getItem('user');
     var pass = localStorage.getItem('pass');
-    $('#username').val(user);
-    $('#password').val(pass);
+    $('.js-login-user').val(user);
+    $('.js-login-password').val(pass);
     request1(user, pass);
   }
 
-  $('#userpass input').bind('input propertychange', $.debounce(500, function () {
-      var user = $('#username').val();
-      var pass = $('#password').val();
+  $('.js-login input').bind('input propertychange', $.debounce(500, function () {
+      var user = $('.js-login-user').val();
+      var pass = $('.js-login-password').val();
       storeLoginInfo(user, pass);
       if (user && pass) {
         request1(user, pass);
@@ -360,8 +362,8 @@ $(document).ready(function () {
       var formdata = new FormData();
       formdata.append(fileToUpload.name, fileToUpload);
       var data = {
-        username: $("#username").val(),
-        password: $("#password").val(),
+        username: $(".js-login-user").val(),
+        password: $(".js-login-password").val(),
         //printer: $("#printers").val(),
         printer: closestPrinter.long_name,
         copies: 1,
@@ -444,7 +446,7 @@ var selectClosestPrinter = function (location) {
 }
 
 var setInfoFromResponse = function (response) {
-  var username = $('#username').val();
+  var username = $('.js-login-user').val();
   var name = response.match(new RegExp(username + '\\s\\((.+?)\\)'))[1];
   var balance = parseFloat(response.match(/\$(\d+\.\d+)/)[1]);
   var percent = balance / 96 * 100;

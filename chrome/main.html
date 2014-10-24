@@ -17,19 +17,17 @@
         <img src="img/printer.png" height=72 alt="Printer Icon" class="icon">
         <h1><a href="#" class="printer-selector">Sayles</a></h1>
       </li>
-      <li>
-        <div id="userpass">
-          Username: <input id="username" type="text" name="username" autocomplete="off"><br>
-          Password: <input id="password" input type="password" name="password" autocomplete="off">
-        </div>
+      <li class="login js-login">
+          <input class="js-login-user" type="text" name="username" placeholder="username" autocomplete="off"><br>
+          <input class="js-login-password" input type="password" name="password" placeholder="password" autocomplete="off">
       </li>
       <li>
         <form id="fileform" enctype="multipart/form-data">
-        <input type="file" name="datafile" size="100">
+          <div class="uploader-visible js-uploader-visible">
+            <h4>Drag files here to print<br>or click to browse</h4>
+          </div>
+          <input class="js-uploader-invisible" style="display:none;" type="file" name="datafile" size="100">
         </form>
-      </li>
-      <li>
-        <h4>Drag files here to print<br>or click to browse</h4>
       </li>
       <li class="center"><input id= "printButton" type="button" class="button" value="Send to Printer"></li>
     </ul>
