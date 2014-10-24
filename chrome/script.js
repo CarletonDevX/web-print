@@ -132,6 +132,7 @@ var request2 = function () {
 }
 
 var startPrint = function (data) {
+  statePrinting();
   findPrinter(data, 1);
 }
 
@@ -175,7 +176,6 @@ var request4 = function (data, select) {
     //Pulling out UID for use in the next request
     var re = new RegExp("uploadUID = \'([0-9]+)\'");
     var uploadUID = response.match(re)[1];
-    //console.log(uploadUID);
     request5(data, uploadUID);
   });
 }
@@ -245,9 +245,10 @@ var request8 = function (url) {
 //For releasing from virtual printers
 var request9 = function (printname) {
   console.log("Request9");
-  //console.log(printname);
   var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
   getRequest(url, {}, function (response) {
+    console.log("Job complete.")
+    stateLogin();
     return response;
   });
 }
@@ -277,16 +278,13 @@ var stateDenied = function () {
 
 // 3. Logged in
 var stateLogin = function () {
-  console.log("Logged in.");
   sessionState = 3;
   $('#userpass input').css('border-color', 'cyan');
 }
 
-// 4. File uploaded
-var stateUploaded = function () {
-  console.log("File uploaded.");
+// 4. Printing
+var statePrinting = function () {
   sessionState = 4;
-
 }
 
 /******************************
@@ -343,8 +341,12 @@ $(document).ready(function () {
   });
 
   $("#printButton").click(function () {
-    if (sessionState != 3) {
+    if (sessionState == 0) {
+      console.log("NOT CONNECTED TO SERVER");
+    } else if (sessionState == 2) {
       console.log("NOT LOGGED IN");
+    } else if (sessionState == 4) {
+      console.log("JOB IN PROGRESS");
     } else if (fileToUpload == null) {
       console.log("NO FILE UPLOADED");
     } else if (! isValid(fileToUpload)) {
