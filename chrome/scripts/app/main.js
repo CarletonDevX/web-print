@@ -1,3 +1,5 @@
+define(['jquery', 'debounce'], function ($) {
+
 /******************************
   Request helpers
  ******************************/
@@ -454,3 +456,5 @@ var setInfoFromResponse = function (response) {
   $('.js-balance').text(balance);
   $('.js-used').css('width', '' + percent + '%');
 }
+
+});
