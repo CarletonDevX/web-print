@@ -125,11 +125,14 @@ var request1 = function (user, pass) {
   });
 }
 
-// User web print page
 var request2 = function () {
   console.log("Request2");
+  // "Web Print"
   getRequest('/app?service=page/UserWebPrint', web_print_payload, function (response) {
-    return response;
+    //"Submit Job"
+    getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
+      return response;
+    });
   });
 }
 
