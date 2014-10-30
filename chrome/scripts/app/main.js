@@ -1,4 +1,4 @@
-define(['jquery', 'app/printers', 'debounce'], function ($, Printers) {
+define(['jquery', 'app/printers', 'debounce'], function ($, Printers) {  
 
 /******************************
   Request helpers
@@ -318,6 +318,12 @@ var sessionState;
 var fileToUpload;
 var closestPrinter;
 
+//Workaround for global variable
+var setClosest = function (closest) {
+  closestPrinter = closest;
+  console.log("Closest is "+ closestPrinter.name);
+}
+
 /******************************
   Interactivity initialization
  ******************************/
@@ -327,7 +333,7 @@ $(document).ready(function () {
   stateInitial();
   request0();
   Printers.getClosestPrinter(function (closest) {
-    closestPrinter = closest;
+    setClosest(closest);
   });
 
   if (localStorage.getItem('user') != null) {
