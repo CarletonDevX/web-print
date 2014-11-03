@@ -134,19 +134,20 @@ var request2 = function () {
 }
 
 var startPrint = function (data) {
+  printMessage("Starting job");
   statePrinting();
   findPrinter(data, 1);
 }
 
 // Navigate to correct printer page
 var findPrinter = function (data, attempt) {
-  console.log("Finding printer...");
+  printMessage("Finding printer...");
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
   getRequest(url, {}, function (response) {
     var re = new RegExp("value=\"([0-9]+)\".*\r" + data.printer.replace("\\", "\\\\").split(" ")[0]);  //split gets rid of (virtual)
     var select = response.match(re);
     if (select != null) {
-      console.log("Printer found");
+      printMessage("Printer found");
       request3(data, select[1]);
     } else {
       console.log("Printer not found on page " + attempt);
@@ -192,7 +193,7 @@ var request5 = function (data, uploadUID) {
 // Upload pt. 2
 var request6 = function (data) {
   postRequest('/app', upload_file_payload, function(response) {
-    console.log("Uploaded.");
+    printMessage("File uploaded");
     release(0);
   });
 }
@@ -243,7 +244,7 @@ var request8 = function (url) {
 var request9 = function (printname) {
   var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
   getRequest(url, {}, function (response) {
-    console.log("Job complete.")
+    printMessage("Job complete.")
     stateLogin();
     return response;
   });
@@ -353,15 +354,15 @@ $(document).ready(function () {
 
   $("#printButton").click(function () {
     if (sessionState == 0) {
-      console.log("NOT CONNECTED TO SERVER");
+      printMessage("NOT CONNECTED TO SERVER");
     } else if (sessionState == 2) {
-      console.log("NOT LOGGED IN");
+      printMessage("NOT LOGGED IN");
     } else if (sessionState == 4) {
-      console.log("JOB IN PROGRESS");
+      printMessage("JOB IN PROGRESS");
     } else if (fileToUpload == null) {
-      console.log("NO FILE UPLOADED");
+      printMessage("NO FILE UPLOADED");
     } else if (! isValid(fileToUpload)) {
-      console.log("INVALID FILE");
+      printMessage("INVALID FILE");
     } else {
       var formdata = new FormData();
       formdata.append(fileToUpload.name, fileToUpload);
@@ -381,6 +382,10 @@ $(document).ready(function () {
 /******************************
   Helper functions
  ******************************/
+
+var printMessage = function (message) {
+  $('.status-console').text(message);
+}
 
 var setInfoFromResponse = function (response) {
   var username = $('.js-login-user').val();
