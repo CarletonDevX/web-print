@@ -36,7 +36,7 @@ var uploadRequest = function (url, data, successHandler) {
   xhr:  function() {  // Custom XMLHttpRequest
             var myXhr = $.ajaxSettings.xhr();
             if(myXhr.upload){ // Check if upload property exists
-                myXhr.upload.addEventListener('progress',function () {console.log("In progress...");}, false); // For handling the progress of the upload
+                myXhr.upload.addEventListener('progress',function () {}, false); // For handling the progress of the upload
             }
             return myXhr;
         },
@@ -103,7 +103,6 @@ var upload_file_payload = {
 
 // Begin session by accessing login page
 var request0 = function () {
-  console.log("Request0");
   getRequest('/app', {}, function () {
     stateReady();
   });
@@ -111,7 +110,6 @@ var request0 = function () {
 
 // Log in with credentials
 var request1 = function (user, pass) {
-  console.log("Request1");
   postRequest('/app', loginData(user, pass), function (response) {
     var foot = response.substring(response.length - 500);
     if (foot.indexOf('Invalid username or password') < 0
@@ -126,7 +124,6 @@ var request1 = function (user, pass) {
 }
 
 var request2 = function () {
-  console.log("Request2");
   // "Web Print"
   getRequest('/app?service=page/UserWebPrint', web_print_payload, function (response) {
     //"Submit Job"
@@ -149,6 +146,7 @@ var findPrinter = function (data, attempt) {
     var re = new RegExp("value=\"([0-9]+)\".*\r" + data.printer.replace("\\", "\\\\").split(" ")[0]);  //split gets rid of (virtual)
     var select = response.match(re);
     if (select != null) {
+      console.log("Printer found");
       request3(data, select[1]);
     } else {
       console.log("Printer not found on page " + attempt);
@@ -163,7 +161,6 @@ var findPrinter = function (data, attempt) {
 
 // Submit printer selection
 var request3 = function (data, select) {
-  console.log("Request3");
   var newpayload = select_printer_payload;
   newpayload['$RadioGroup'] = select;
   postRequest('/app', newpayload, function (response) {
@@ -174,7 +171,6 @@ var request3 = function (data, select) {
 
 // Submit print options and account selection - doesn't yet regard data.options
 var request4 = function (data, select) {
-  console.log("Request4");
   var newpayload = print_options_payload;
   newpayload['$RadioGroup'] = select;
   postRequest('/app', newpayload, function (response) {
@@ -187,7 +183,6 @@ var request4 = function (data, select) {
 
 // Upload pt. 1
 var request5 = function (data, uploadUID) {
-  console.log("Request5");
   var url = '/upload/'+ uploadUID;
   uploadRequest(url, data, function(response) {
     request6(data);
@@ -196,16 +191,14 @@ var request5 = function (data, uploadUID) {
 
 // Upload pt. 2
 var request6 = function (data) {
-  console.log("Request6");
   postRequest('/app', upload_file_payload, function(response) {
     console.log("Uploaded.");
-    release();
+    release(0);
   });
 }
 
 // Repeatedly tries to release files from queue
 var release = function () {
-  console.log("Releasing");
   request7(function (response) {
     var lines = response.split("\n");
     var url = null;
@@ -237,7 +230,6 @@ var request7 = function (successCallback) {
 }
 
 var request8 = function (url) {
-  console.log("Request8");
   getRequest(url, {}, function (response) {
     var re = new RegExp("<a href=.*sp=(.*)\">");
     var printname = response.match(re);
@@ -249,7 +241,6 @@ var request8 = function (url) {
 
 //For releasing from virtual printers
 var request9 = function (printname) {
-  console.log("Request9");
   var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
   getRequest(url, {}, function (response) {
     console.log("Job complete.")
