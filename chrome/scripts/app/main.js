@@ -159,7 +159,7 @@ var findPrinter = function (data, attempt) {
       if (attempt < 3) {
         findPrinter(data, (attempt + 1));
       } else {
-        printMessage("Error: printer not found.");
+        printError("Printer not found.");
         stateLogin();
       }
     }
@@ -207,8 +207,8 @@ var request6 = function (data) {
 // Repeatedly tries to release files from queue
 var release = function (attempt) {
   console.log("Attempt: "+attempt);
-  if (attempt > 1) {
-    printMessage("Error: Job not sent to webprint.")
+  if (attempt > 20) {
+    printError("Job not sent to webprint.")
     stateLogin();
   } else {
     request7(function (response) {
@@ -366,13 +366,13 @@ $(document).ready(function () {
 
   $("#printButton").click(function () {
     if (sessionState == 0) {
-      printMessage("Error: Not connected to server.");
+      printError("Not connected to server.");
     } else if (sessionState == 2) {
-      printMessage("Error: Not logged in.");
+      printError("Not logged in.");
     } else if (fileToUpload == null) {
-      printMessage("Error: No file chosen.");
+      printError("No file chosen.");
     } else if (! isValid(fileToUpload)) {
-      printMessage("Error: Invalid file.");
+      printError("Invalid file.");
     } else if (sessionState == 4) {
       printMessage("Job in progress, please wait.");
     } else {
@@ -396,6 +396,12 @@ $(document).ready(function () {
  ******************************/
 
 var printMessage = function (message) {
+  $('.status-console').css('color', 'black');
+  $('.status-console').text(message);
+}
+
+var printError = function (message) {
+  $('.status-console').css('color', 'red');
   $('.status-console').text(message);
 }
 
