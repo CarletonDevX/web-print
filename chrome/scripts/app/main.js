@@ -139,6 +139,11 @@ var startPrint = function (data) {
   findPrinter(data, 1);
 }
 
+
+var buildPrinterDict = function (data) {
+  printMessage("Building printer dictionary");
+}
+
 // Navigate to correct printer page
 var findPrinter = function (data, attempt) {
   printMessage("Finding printer...");
@@ -154,7 +159,8 @@ var findPrinter = function (data, attempt) {
       if (attempt < 3) {
         findPrinter(data, (attempt + 1));
       } else {
-        console.log("Printer not found.");
+        printMessage("Error: printer not found.");
+        stateLogin();
       }
     }
   });
@@ -199,30 +205,36 @@ var request6 = function (data) {
 }
 
 // Repeatedly tries to release files from queue
-var release = function () {
-  request7(function (response) {
-    var lines = response.split("\n");
-    var url = null;
-    for (i = 0; i < lines.length; i++) {
-      if (lines[i].indexOf('UserReleaseJobs/$ReleaseStationJobs.release') > -1) {
-        url = lines[i];
-      }
-    }
-    if (url != null){
-      var hrefs = [];
-      var words = url.split(" ");
-      //Write a regex for this..?
-      for (i = 0; i < words.length; i++) {
-        if (words[i].indexOf('href') > -1) {
-          hrefs.push(words[i]);
+var release = function (attempt) {
+  console.log("Attempt: "+attempt);
+  if (attempt > 1) {
+    printMessage("Error: Job not sent to webprint.")
+    stateLogin();
+  } else {
+    request7(function (response) {
+      var lines = response.split("\n");
+      var url = null;
+      for (i = 0; i < lines.length; i++) {
+        if (lines[i].indexOf('UserReleaseJobs/$ReleaseStationJobs.release') > -1) {
+          url = lines[i];
         }
       }
-      var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-      request8(finalurl);
-    } else {
-      setTimeout(release, 500);
-    }
-  });
+      if (url != null){
+        var hrefs = [];
+        var words = url.split(" ");
+        //Write a regex for this..?
+        for (i = 0; i < words.length; i++) {
+          if (words[i].indexOf('href') > -1) {
+            hrefs.push(words[i]);
+          }
+        }
+        var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
+        request8(finalurl);
+      } else {
+        setTimeout(function(){release(attempt+1)}, 500);
+      }
+    });
+  }
 }
 
 // Checks if documents are ready for release
@@ -354,15 +366,15 @@ $(document).ready(function () {
 
   $("#printButton").click(function () {
     if (sessionState == 0) {
-      printMessage("NOT CONNECTED TO SERVER");
+      printMessage("Error: Not connected to server.");
     } else if (sessionState == 2) {
-      printMessage("NOT LOGGED IN");
-    } else if (sessionState == 4) {
-      printMessage("JOB IN PROGRESS");
+      printMessage("Error: Not logged in.");
     } else if (fileToUpload == null) {
-      printMessage("NO FILE UPLOADED");
+      printMessage("Error: No file chosen.");
     } else if (! isValid(fileToUpload)) {
-      printMessage("INVALID FILE");
+      printMessage("Error: Invalid file.");
+    } else if (sessionState == 4) {
+      printMessage("Job in progress, please wait.");
     } else {
       var formdata = new FormData();
       formdata.append(fileToUpload.name, fileToUpload);
