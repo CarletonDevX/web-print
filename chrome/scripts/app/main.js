@@ -115,6 +115,7 @@ var request1 = function (user, pass) {
     if (foot.indexOf('Invalid username or password') < 0
       && foot.indexOf('You must enter a value for') < 0) {
       stateLogin();
+      storeLoginInfo(user, pass);
       setInfoFromResponse(response);
       request2();
     } else {
@@ -301,14 +302,23 @@ var statePrinting = function () {
  ******************************/
 
 var storeLoginInfo = function (user, pass) {
-  localStorage.setItem('user', user);
-  localStorage.setItem('pass', pass);
+  localStorage.setItem(0, obfuscate(user));
+  localStorage.setItem(1, obfuscate(pass));
+}
+
+//Silly ascii manipulation so passwords aren't clearly visible. 
+//We should stop storing login info in local storage asap though.
+var obfuscate = function (pass) {
+  var newpass = "";
+  for (i in pass) {
+    newpass = newpass.concat(String.fromCharCode(158-pass.charCodeAt(i)));
+  }
+  return newpass;
 }
 
 var validExts = ['xlam','xls','xlsb','xlsm','xlsx','xltm','xltx','pot','potm','potx','ppam','pps','ppsm',
                 'ppsx','ppt','pptm','pptx','doc','docm','docx','dot','dotm','dotx','rtf','pdf','xps'];
 
-//Regex from http://stackoverflow.com/a/17355937
 var isValid = function (file) {
     if (file.size >= 100000000) {
       return false;
@@ -343,9 +353,9 @@ $(document).ready(function () {
     setClosest(closest);
   });
 
-  if (localStorage.getItem('user') != null) {
-    var user = localStorage.getItem('user');
-    var pass = localStorage.getItem('pass');
+  if (localStorage.getItem(0) != null) {
+    var user = obfuscate(localStorage.getItem(0));
+    var pass = obfuscate(localStorage.getItem(1));
     $('.js-login-user').val(user);
     $('.js-login-password').val(pass);
     request1(user, pass);
@@ -354,7 +364,6 @@ $(document).ready(function () {
   $('.js-login input').bind('input propertychange', $.debounce(500, function () {
       var user = $('.js-login-user').val();
       var pass = $('.js-login-password').val();
-      storeLoginInfo(user, pass);
       if (user && pass) {
         request1(user, pass);
       }
