@@ -129,40 +129,36 @@ var request2 = function () {
   getRequest('/app?service=page/UserWebPrint', web_print_payload, function (response) {
     //"Submit Job"
     getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
-      return response;
+        checkPrinterInfo();
     });
   });
 }
 
 var startPrint = function (data) {
-  printMessage("Starting job");
-  statePrinting();
-  findPrinter(data, 1);
+  printMessage("Starting job...");
+  stateBusy();
+  if (localStorage.getItem(data.printer.split(" ")[0]) == null) {
+    storePrinterInfo(1, function () {
+      findPrinter(data, localStorage.getItem(data.printer.split(" ")[0]));
+    });
+  } else {
+    findPrinter(data, localStorage.getItem(data.printer.split(" ")[0]));
+  }
 }
 
-
-var buildPrinterDict = function (data) {
-  printMessage("Building printer dictionary");
-}
-
-// Navigate to correct printer page
-var findPrinter = function (data, attempt) {
+// Navigate to correct page and find radio button
+var findPrinter = function (data, page) {
   printMessage("Finding printer...");
-  var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
+  var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + page;
   getRequest(url, {}, function (response) {
-    var re = new RegExp("value=\"([0-9]+)\".*\r" + data.printer.replace("\\", "\\\\").split(" ")[0]);  //split gets rid of (virtual)
+    var re = new RegExp("value=\"([0-9]+)\" .*\r" + data.printer.replace("\\", "\\\\").split(" ")[0]);  //split gets rid of (virtual)
     var select = response.match(re);
     if (select != null) {
-      printMessage("Printer found");
+      printMessage("Printer found...");
       request3(data, select[1]);
     } else {
-      console.log("Printer not found on page " + attempt);
-      if (attempt < 3) {
-        findPrinter(data, (attempt + 1));
-      } else {
-        printError("Printer not found.");
-        stateLogin();
-      }
+      printError("Printer not found.");
+      stateLogin();
     }
   });
 }
@@ -200,14 +196,13 @@ var request5 = function (data, uploadUID) {
 // Upload pt. 2
 var request6 = function (data) {
   postRequest('/app', upload_file_payload, function(response) {
-    printMessage("File uploaded");
+    printMessage("File uploaded...");
     release(0);
   });
 }
 
 // Repeatedly tries to release files from queue
 var release = function (attempt) {
-  console.log("Attempt: "+attempt);
   if (attempt > 20) {
     printError("Job not sent to webprint.")
     stateLogin();
@@ -293,7 +288,7 @@ var stateLogin = function () {
 }
 
 // 4. Printing
-var statePrinting = function () {
+var stateBusy = function () {
   sessionState = 4;
 }
 
@@ -374,28 +369,28 @@ $(document).ready(function () {
   });
 
   $("#printButton").click(function () {
-    if (sessionState == 0) {
-      printError("Not connected to server.");
-    } else if (sessionState == 2) {
-      printError("Not logged in.");
-    } else if (fileToUpload == null) {
-      printError("No file chosen.");
-    } else if (! isValid(fileToUpload)) {
-      printError("Invalid file.");
-    } else if (sessionState == 4) {
-      printMessage("Job in progress, please wait.");
-    } else {
-      var formdata = new FormData();
-      formdata.append(fileToUpload.name, fileToUpload);
-      var data = {
-        username: $(".js-login-user").val(),
-        password: $(".js-login-password").val(),
-        //printer: $("#printers").val(),
-        printer: closestPrinter.long_name,
-        copies: 1,
-        file: formdata
-      };
-      startPrint(data);
+    if (sessionState != 4) {
+      if (sessionState == 0) {
+        printError("Not connected to server.");
+      } else if (sessionState == 2) {
+        printError("Not logged in.");
+      } else if (fileToUpload == null) {
+        printError("No file chosen.");
+      } else if (! isValid(fileToUpload)) {
+        printError("Invalid file.");
+      } else {
+        var formdata = new FormData();
+        formdata.append(fileToUpload.name, fileToUpload);
+        var data = {
+          username: $(".js-login-user").val(),
+          password: $(".js-login-password").val(),
+          //printer: $("#printers").val(),
+          printer: closestPrinter.long_name,
+          copies: 1,
+          file: formdata
+        };
+        startPrint(data);
+      }
     }
   });
 });
@@ -403,6 +398,7 @@ $(document).ready(function () {
 /******************************
   Helper functions
  ******************************/
+
 
 var printMessage = function (message) {
   $('.status-console').css('color', 'black');
@@ -422,6 +418,46 @@ var setInfoFromResponse = function (response) {
   $('.js-name').text(name);
   $('.js-balance').text(balance);
   $('.js-used').css('width', '' + percent + '%');
+}
+
+var checkPrinterInfo = function() {
+  var currtime = Math.floor(new Date().getTime()/60000);
+  console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
+  if (localStorage.getItem('lastStored') == null || currtime-localStorage.getItem('lastStored') > 1440) {
+    storePrinterInfo(1);
+  } else {
+    console.log("Printer info is up-to-date.")
+  }
+}
+
+//Puts printer page values in local storage
+var storePrinterInfo = function (attempt, callback) {
+  stateBusy();
+  printMessage("Updating printer information. Please wait.");
+  console.log("Storing info on page " + attempt);
+  if (attempt < 4) {
+    var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
+    getRequest(url, {}, function (response) {
+      var lines = response.split("\n");
+      var re = new RegExp("value=\"[0-9]+\".*\r(.*)");
+      for (i in lines) {
+        var select = lines[i].match(re);
+        if (select != null) {
+          localStorage.setItem(select[1], attempt);
+        }
+      }
+      storePrinterInfo(attempt+1, callback);
+    });
+  } else {
+    printMessage("Printer information updated.")    
+    var currtime = Math.floor(new Date().getTime()/60000);
+    localStorage.setItem('lastStored', currtime);
+    if (callback != null) {
+      callback();
+    } else {
+      stateLogin();
+    }
+  }    
 }
 
 });
