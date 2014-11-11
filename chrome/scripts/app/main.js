@@ -102,14 +102,14 @@ var upload_file_payload = {
  ******************************/
 
 // Begin session by accessing login page
-var request0 = function () {
+var connectToServer = function () {
   getRequest('/app', {}, function () {
     stateReady();
   });
 };
 
 // Log in with credentials
-var request1 = function (user, pass) {
+var attemptLogin = function (user, pass) {
   postRequest('/app', loginData(user, pass), function (response) {
     var foot = response.substring(response.length - 500);
     if (foot.indexOf('Invalid username or password') < 0
@@ -117,14 +117,14 @@ var request1 = function (user, pass) {
       stateLogin();
       storeLoginInfo(user, pass);
       setInfoFromResponse(response);
-      request2();
+      navigateToPage();
     } else {
       stateDenied();
     }
   });
 }
 
-var request2 = function () {
+var navigateToPage = function () {
   // "Web Print"
   getRequest('/app?service=page/UserWebPrint', web_print_payload, function (response) {
     //"Submit Job"
@@ -155,7 +155,7 @@ var findPrinter = function (data, page) {
     var select = response.match(re);
     if (select != null) {
       printMessage("Printer found...");
-      request3(data, select[1]);
+      submitSelection(data, select[1]);
     } else {
       printError("Printer not found.");
       stateLogin();
@@ -164,35 +164,39 @@ var findPrinter = function (data, page) {
 }
 
 // Submit printer selection
-var request3 = function (data, select) {
+var submitSelection = function (data, select) {
   var newpayload = select_printer_payload;
   newpayload['$RadioGroup'] = select;
   postRequest('/app', newpayload, function (response) {
-    request4(data, select);
+    submitOptions(data, select);
   });
 }
 
 
 // Submit print options and account selection - doesn't yet regard data.options
-var request4 = function (data, select) {
+var submitOptions = function (data, select) {
   var newpayload = print_options_payload;
   newpayload['$RadioGroup'] = select;
   postRequest('/app', newpayload, function (response) {
     //Pulling out UID for use in the next request
     var re = new RegExp("uploadUID = \'([0-9]+)\'");
     var uploadUID = response.match(re)[1];
-    request5(data, uploadUID);
+    uploadFile(data, uploadUID);
   });
 }
 
 // Upload pt. 1
-var request5 = function (data, uploadUID) {
+var uploadFile = function (data, uploadUID) {
   var url = '/upload/'+ uploadUID;
   uploadRequest(url, data, function(response) {
-    request6(data);
+    postRequest('/app', upload_file_payload, function(response) {
+      printMessage("File uploaded...");
+      attemptRelease(0);
+    });
   });
 }
 
+/*
 // Upload pt. 2
 var request6 = function (data) {
   postRequest('/app', upload_file_payload, function(response) {
@@ -200,14 +204,16 @@ var request6 = function (data) {
     release(0);
   });
 }
+*/
 
 // Repeatedly tries to release files from queue
-var release = function (attempt) {
+var attemptRelease = function (attempt) {
   if (attempt > 20) {
     printError("Job not sent to webprint.")
     stateLogin();
   } else {
-    request7(function (response) {
+    printMessage("Releasing...");
+    checkForRelease(function (response) {
       var lines = response.split("\n");
       var url = null;
       for (i = 0; i < lines.length; i++) {
@@ -225,31 +231,31 @@ var release = function (attempt) {
           }
         }
         var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-        request8(finalurl);
+        releaseFromQueue(finalurl);
       } else {
-        setTimeout(function(){release(attempt+1)}, 500);
+        setTimeout(function(){attemptRelease(attempt+1)}, 500);
       }
     });
   }
 }
 
 // Checks if documents are ready for release
-var request7 = function (successCallback) {
+var checkForRelease = function (successCallback) {
   getRequest('/app?service=page/UserReleaseJobs', {}, successCallback);
 }
 
-var request8 = function (url) {
+var releaseFromQueue = function (url) {
   getRequest(url, {}, function (response) {
     var re = new RegExp("<a href=.*sp=(.*)\">");
     var printname = response.match(re);
     if (printname != null) {
-      request9(printname[1]);
+      releaseFromVirtual(printname[1]);
     }
   });
 }
 
 //For releasing from virtual printers
-var request9 = function (printname) {
+var releaseFromVirtual = function (printname) {
   var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
   getRequest(url, {}, function (response) {
     printMessage("Job complete.")
@@ -343,7 +349,7 @@ var setClosest = function (closest) {
 $(document).ready(function () {
 
   stateInitial();
-  request0();
+  connectToServer();
   Printers.getClosestPrinter(function (closest) {
     setClosest(closest);
   });
@@ -353,14 +359,14 @@ $(document).ready(function () {
     var pass = obfuscate(localStorage.getItem(1));
     $('.js-login-user').val(user);
     $('.js-login-password').val(pass);
-    request1(user, pass);
+    attemptLogin(user, pass);
   }
 
   $('.js-login input').bind('input propertychange', $.debounce(500, function () {
       var user = $('.js-login-user').val();
       var pass = $('.js-login-password').val();
       if (user && pass) {
-        request1(user, pass);
+        attemptLogin(user, pass);
       }
     }));
 
