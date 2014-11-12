@@ -49,7 +49,6 @@ var uploadRequest = function (url, data, successHandler) {
   });
 }
 
-//Adds default login data
 var loginData = function (user, pass) {
   return {
     'service': 'direct/1/Home/$Form$0',
@@ -64,7 +63,10 @@ var loginData = function (user, pass) {
   }
 }
 
-//Payloads for requests
+/******************************
+  Request payloads
+ ******************************/
+
 web_print_payload = {
   'service': 'page/UserWebPrint'
 }
@@ -177,6 +179,7 @@ var submitSelection = function (data, select) {
 var submitOptions = function (data, select) {
   var newpayload = print_options_payload;
   newpayload['$RadioGroup'] = select;
+  newpayload['copies'] = data.copies;
   postRequest('/app', newpayload, function (response) {
     //Pulling out UID for use in the next request
     var re = new RegExp("uploadUID = \'([0-9]+)\'");
@@ -185,34 +188,26 @@ var submitOptions = function (data, select) {
   });
 }
 
-// Upload pt. 1
+// Upload!
 var uploadFile = function (data, uploadUID) {
   var url = '/upload/'+ uploadUID;
   uploadRequest(url, data, function(response) {
     postRequest('/app', upload_file_payload, function(response) {
       printMessage("File uploaded...");
-      attemptRelease(0);
+      attemptRelease(0, parseInt(data.copies));
     });
   });
 }
 
-/*
-// Upload pt. 2
-var request6 = function (data) {
-  postRequest('/app', upload_file_payload, function(response) {
-    printMessage("File uploaded...");
-    release(0);
-  });
-}
-*/
-
 // Repeatedly tries to release files from queue
-var attemptRelease = function (attempt) {
-  if (attempt > 20) {
+var attemptRelease = function (attempt, copies) {
+  if (copies == 0) {
+    finishPrint();
+  } else if (attempt > 20) {
     printError("Job not sent to webprint.")
     stateLogin();
   } else {
-    printMessage("Releasing...");
+    printMessage("Releasing page " + copies + "...");
     checkForRelease(function (response) {
       var lines = response.split("\n");
       var url = null;
@@ -231,9 +226,9 @@ var attemptRelease = function (attempt) {
           }
         }
         var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-        releaseFromQueue(finalurl);
+        releaseFromQueue(finalurl, copies);
       } else {
-        setTimeout(function(){attemptRelease(attempt+1)}, 500);
+        setTimeout(function(){attemptRelease(attempt+1, copies)}, 500);
       }
     });
   }
@@ -244,24 +239,29 @@ var checkForRelease = function (successCallback) {
   getRequest('/app?service=page/UserReleaseJobs', {}, successCallback);
 }
 
-var releaseFromQueue = function (url) {
+var releaseFromQueue = function (url, copies) {
   getRequest(url, {}, function (response) {
     var re = new RegExp("<a href=.*sp=(.*)\">");
     var printname = response.match(re);
     if (printname != null) {
-      releaseFromVirtual(printname[1]);
+      releaseFromVirtual(printname[1], copies);
+    } else {
+      attemptRelease(0, copies-1);
     }
   });
 }
 
 //For releasing from virtual printers
-var releaseFromVirtual = function (printname) {
+var releaseFromVirtual = function (printname, copies) {
   var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
   getRequest(url, {}, function (response) {
-    printMessage("Job complete.")
-    stateLogin();
-    return response;
+    attemptRelease(0, copies-1);
   });
+}
+
+var finishPrint = function () {
+  printMessage("Job complete.")
+  stateLogin();
 }
 
 /******************************
@@ -354,6 +354,13 @@ $(document).ready(function () {
     setClosest(closest);
   });
 
+  //building copies drop-down
+  var copyselect = '';
+  for (i=1;i<=10;i++){
+      copyselect += '<option val=' + i + '>' + i + '</option>';
+  }
+  $('#copy_select').html(copyselect);
+
   if (localStorage.getItem(0) != null) {
     var user = obfuscate(localStorage.getItem(0));
     var pass = obfuscate(localStorage.getItem(1));
@@ -392,7 +399,7 @@ $(document).ready(function () {
           password: $(".js-login-password").val(),
           //printer: $("#printers").val(),
           printer: closestPrinter.long_name,
-          copies: 1,
+          copies: $("#copy_select").val(),
           file: formdata
         };
         startPrint(data);
@@ -436,7 +443,7 @@ var checkPrinterInfo = function() {
   }
 }
 
-//Puts printer page values in local storage
+//Puts printer page values in local storage. Can be called from checkPrinterInfo() and startPrint()
 var storePrinterInfo = function (attempt, callback) {
   stateBusy();
   printMessage("Updating printer information. Please wait.");
