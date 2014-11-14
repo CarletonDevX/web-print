@@ -153,7 +153,7 @@ var findPrinter = function (data, page) {
   printMessage("Finding printer...");
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + page;
   getRequest(url, {}, function (response) {
-    var re = new RegExp("value=\"([0-9]+)\" .*\r" + data.printer.replace("\\", "\\\\").split(" ")[0]);  //split gets rid of (virtual)
+    var re = new RegExp("value=\"([0-9]+)\" .*\r" + data.printer.replace("\\", "\\\\"));
     var select = response.match(re);
     if (select != null) {
       printMessage("Printer found...");
@@ -204,7 +204,7 @@ var attemptRelease = function (attempt, copies) {
   if (copies == 0) {
     finishPrint();
   } else if (attempt > 20) {
-    printError("Job not sent to webprint.")
+    printError("Job did not print.")
     stateLogin();
   } else {
     printMessage("Releasing page " + copies + "...");
@@ -261,6 +261,7 @@ var releaseFromVirtual = function (printname, copies) {
 
 var finishPrint = function () {
   printMessage("Job complete.")
+  navigateToPage();
   stateLogin();
 }
 
@@ -334,13 +335,7 @@ var isValid = function (file) {
 
 var sessionState;
 var fileToUpload;
-var closestPrinter;
-
-//Workaround for global variable
-var setClosest = function (closest) {
-  closestPrinter = closest;
-  console.log("Closest is "+ closestPrinter.name);
-}
+var printerDict;
 
 /******************************
   Interactivity initialization
@@ -348,19 +343,33 @@ var setClosest = function (closest) {
 
 $(document).ready(function () {
 
+  printerDict = Printers.printers;
+
   stateInitial();
   connectToServer();
-  Printers.getClosestPrinter(function (closest) {
-    setClosest(closest);
-  });
 
   //building copies drop-down
   var copyselect = '';
   for (i=1;i<=10;i++){
-      copyselect += '<option val=' + i + '>' + i + '</option>';
+      copyselect += '<option value=' + i + '>' + i + '</option>';
   }
   $('#copy_select').html(copyselect);
 
+  //building printers drop-down
+  var printerselect = '';
+  for (i in printerDict){
+    var printername = printerDict[i].name;
+    printerselect += '<option value=' + printerDict[i].long_name + '>' + printerDict[i].name + '</option>';
+  }
+  $('#printer_select').html(printerselect);
+  $("#printer_select").prop("selectedIndex", -1);
+
+  Printers.getClosestPrinter(function (closest) {
+    $("#printer_select").val(closest.long_name);
+    checkPrinterStatus(closest.long_name, 1);
+  });
+
+  //retrieving login info
   if (localStorage.getItem(0) != null) {
     var user = obfuscate(localStorage.getItem(0));
     var pass = obfuscate(localStorage.getItem(1));
@@ -369,6 +378,12 @@ $(document).ready(function () {
     attemptLogin(user, pass);
   }
 
+  //printer field change
+  $('#printer_select').change(function() {
+    checkPrinterStatus($("#printer_select").val(), 1);
+  });
+
+  //login field change
   $('.js-login input').bind('input propertychange', $.debounce(500, function () {
       var user = $('.js-login-user').val();
       var pass = $('.js-login-password').val();
@@ -377,9 +392,11 @@ $(document).ready(function () {
       }
     }));
 
+  //file change
   $(':file').change(function() {
     fileToUpload = this.files[0];
   });
+
 
   $("#printButton").click(function () {
     if (sessionState != 4) {
@@ -397,8 +414,7 @@ $(document).ready(function () {
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
-          //printer: $("#printers").val(),
-          printer: closestPrinter.long_name,
+          printer: $("#printer_select").val(),
           copies: $("#copy_select").val(),
           file: formdata
         };
@@ -455,13 +471,14 @@ var checkPrinterStatus = function (printer, attempt) {
       data: {},
       xhrFields: {withCredentials: true},
       success: function (response) {
-        var re = new RegExp(printer.substring(5).split(" ")[0]+".*>(.*)");  //split gets rid of (virtual)
+        var re = new RegExp(printer.substring(5)+".*>(.*)");
         lines = response.split("</font></font></td>");
         for (i in lines) {
           var message = lines[i].match(re);
           if (message != null) {
             if (message[1] != "Ready"){
               printError("Warning: " + message[1]);
+              return;
             }
           }
         }
@@ -469,6 +486,8 @@ var checkPrinterStatus = function (printer, attempt) {
       },
       error: function () {console.log('error in get')}
     });
+  } else {
+    printMessage("Welcome to JFP");
   }
 }
 

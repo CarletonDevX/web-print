@@ -11,9 +11,10 @@
   <div class="wrapper">
     <ul class="paper">
       <div class="slot"></div>
-      <li class="big">
-        <img src="img/printer.png" height=72 alt="Printer Icon" class="icon">
-        <h1><a href="#" class="printer-selector">Sayles</a></h1>
+      <li class="big" align= "center">
+        <img src="img/printer.png" height=72 alt="Printer Icon" class="icon" style="margin-bottom: 20px">
+        <!--<h1><a href="#" class="printer-selector">Sayles</a></h1>-->
+        <select id="printer_select"></select>
       </li>
       <li class="login js-login">
           <input class="js-login-user" type="text" name="username" placeholder="username" autocomplete="off"><br>
@@ -28,7 +29,7 @@
         </form>
       </li>
       <li align= "center">
-         <label for="copy_select" style="margin-right: 10px"> Copies: </label> <select id="copy_select" margin-left="5px important!"></select>
+         <label for="copy_select" style="margin-right: 10px"> Copies: </label> <select id="copy_select"></select>
       </li>
       <li class="center"><input id= "printButton" type="button" class="button" value="Send to Printer"></li>
       <li class="status-console" align= "center"> Welcome to JFP!</li>

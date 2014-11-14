@@ -32,12 +32,12 @@ body {
 }
 
 .paper>li {
-  padding: 1.75em 0;
+  padding: 1.1em 0;
   border-bottom: 1px solid #aaa;
 }
 
 .paper>li.big {
-  padding: 3.5em 0;
+  padding: 1.5em 0;
 }
 
 .paper>li.small {

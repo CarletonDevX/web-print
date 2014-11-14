@@ -1,5 +1,6 @@
 define([], function () {
 
+//LDC, HUE
   var printers = [
     {
       name: '1st Cassat',
@@ -9,13 +10,13 @@ define([], function () {
     },
     {
       name: '4th Libe',
-      long_name: 'print\\LIBR-Public-X5550 (virtual)',
+      long_name: 'print\\LIBR-Public-X5550',
       longitude: -93.154705,
       latitude: 44.462281,
     },
     {
       name: 'Upper Sayles',
-      long_name: 'print\\SAYL-Public-X4600 (virtual)',
+      long_name: 'print\\SAYL-Public-X4600',
       longitude: -93.156028,
       latitude: 44.461604,
     },
@@ -64,5 +65,6 @@ define([], function () {
         callback(closest);
       });
     },
+    printers: printers
   };
 });
