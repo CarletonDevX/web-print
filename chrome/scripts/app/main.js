@@ -501,7 +501,7 @@ var checkPrinterInfo = function () {
   }
 }
 
-//Puts printer page values in local storage. Can be called from checkPrinterInfo() and startPrint()
+//Puts printer page values in local storage. Called from checkPrinterInfo() and startPrint()
 var storePrinterInfo = function (attempt, callback) {
   stateBusy();
   printMessage("Updating printer information. Please wait...");
