@@ -433,7 +433,46 @@ var setInfoFromResponse = function (response) {
   $('.js-used').css('width', '' + percent + '%');
 }
 
-var checkPrinterInfo = function() {
+var checkPrinterStatus = function (printer, attempt) {
+  if (attempt < 4){
+    var url_end;
+    switch (attempt) {
+      case 1: 
+        url_end = "startid=1&endid=101";
+        break;
+      case 2:
+        url_end = "startid=101&endid=201";
+        break;
+      case 3:
+        url_end = "startid=201&endid=301";
+        break;
+    }
+
+    //GET from printer status page
+    $.ajax({
+      type: 'GET',
+      url: 'https://print.ads.carleton.edu/printers/ipp_0001.asp?' + url_end,
+      data: {},
+      xhrFields: {withCredentials: true},
+      success: function (response) {
+        var re = new RegExp(printer.substring(5).split(" ")[0]+".*>(.*)");  //split gets rid of (virtual)
+        lines = response.split("</font></font></td>");
+        for (i in lines) {
+          var message = lines[i].match(re);
+          if (message != null) {
+            if (message[1] != "Ready"){
+              printError("Warning: " + message[1]);
+            }
+          }
+        }
+        checkPrinterStatus(printer, attempt +1);
+      },
+      error: function () {console.log('error in get')}
+    });
+  }
+}
+
+var checkPrinterInfo = function () {
   var currtime = Math.floor(new Date().getTime()/60000);
   console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
   if (localStorage.getItem('lastStored') == null || currtime-localStorage.getItem('lastStored') > 1440) {
@@ -446,7 +485,7 @@ var checkPrinterInfo = function() {
 //Puts printer page values in local storage. Can be called from checkPrinterInfo() and startPrint()
 var storePrinterInfo = function (attempt, callback) {
   stateBusy();
-  printMessage("Updating printer information. Please wait.");
+  printMessage("Updating printer information. Please wait...");
   console.log("Storing info on page " + attempt);
   if (attempt < 4) {
     var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
