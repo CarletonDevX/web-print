@@ -10,11 +10,12 @@ Todo:
 - ~~let user specify number of copies~~
 - styling, Chrome icon [Robert]
 - progress indicator [Robert]
-- full list of printers with short name (display name) and long name (string used to access it in the request)[Ken]
+- full list of printers with short name (display name) and long name (string used to access it in the request) [Ken]
+- stop storing login info in localstorage [Ken]
 
-Known bugs:
-- can't print from two different printers in a row
+Known bugs:]
 - can't print multiple copies from non-virtual printers
+- quota status bar doesn't always appear on load
 
 Printer Icon Credits:
 

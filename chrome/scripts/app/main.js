@@ -112,11 +112,11 @@ var connectToServer = function () {
 
 // Log in with credentials
 var attemptLogin = function (user, pass) {
+  stateBusy();
   postRequest('/app', loginData(user, pass), function (response) {
     var foot = response.substring(response.length - 500);
     if (foot.indexOf('Invalid username or password') < 0
       && foot.indexOf('You must enter a value for') < 0) {
-      stateLogin();
       storeLoginInfo(user, pass);
       setInfoFromResponse(response);
       navigateToPage();
@@ -132,6 +132,7 @@ var navigateToPage = function () {
     //"Submit Job"
     getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
         checkPrinterInfo();
+        stateLogin();
     });
   });
 }
@@ -194,17 +195,17 @@ var uploadFile = function (data, uploadUID) {
   uploadRequest(url, data, function(response) {
     postRequest('/app', upload_file_payload, function(response) {
       printMessage("File uploaded...");
-      attemptRelease(0, parseInt(data.copies));
+      attemptRelease(data, 0, parseInt(data.copies));
     });
   });
 }
 
 // Repeatedly tries to release files from queue
-var attemptRelease = function (attempt, copies) {
+var attemptRelease = function (data, attempt, copies) {
   if (copies == 0) {
-    finishPrint();
+    finishPrint(data);
   } else if (attempt > 20) {
-    printError("Job did not print.")
+    printError("Job did not print.");
     stateLogin();
   } else {
     printMessage("Releasing page " + copies + "...");
@@ -226,9 +227,9 @@ var attemptRelease = function (attempt, copies) {
           }
         }
         var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-        releaseFromQueue(finalurl, copies);
+        releaseFromQueue(data, finalurl, copies);
       } else {
-        setTimeout(function(){attemptRelease(attempt+1, copies)}, 500);
+        setTimeout(function(){attemptRelease(data, attempt+1, copies)}, 500);
       }
     });
   }
@@ -239,30 +240,40 @@ var checkForRelease = function (successCallback) {
   getRequest('/app?service=page/UserReleaseJobs', {}, successCallback);
 }
 
-var releaseFromQueue = function (url, copies) {
+var releaseFromQueue = function (data, url, copies) {
   getRequest(url, {}, function (response) {
     var re = new RegExp("<a href=.*sp=(.*)\">");
     var printname = response.match(re);
     if (printname != null) {
-      releaseFromVirtual(printname[1], copies);
+      releaseFromVirtual(data, printname[1], copies);
     } else {
-      attemptRelease(0, copies-1);
+      attemptRelease(data, 0, copies-1);
     }
   });
 }
 
 //For releasing from virtual printers
-var releaseFromVirtual = function (printname, copies) {
+var releaseFromVirtual = function (data, printname, copies) {
   var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
   getRequest(url, {}, function (response) {
-    attemptRelease(0, copies-1);
+    attemptRelease(data, 0, copies-1);
   });
 }
 
-var finishPrint = function () {
-  printMessage("Job complete.")
-  navigateToPage();
-  stateLogin();
+var finishPrint = function (data) {
+  printMessage("Job complete.");
+
+  //Check if it needs to log in again
+  var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=1';
+  getRequest(url, {}, function (response) {
+    var re = new RegExp("<title>Login</title>");
+    if (response.match(re)){
+      attemptLogin(data.username, data.password);
+    } else {
+      stateLogin();
+    }
+  });
+  
 }
 
 /******************************
@@ -347,6 +358,7 @@ $(document).ready(function () {
 
   stateInitial();
   connectToServer();
+  //finishPrint();
 
   //building copies drop-down
   var copyselect = '';
@@ -441,6 +453,7 @@ var printError = function (message) {
 
 var setInfoFromResponse = function (response) {
   var username = $('.js-login-user').val();
+  //console.log(response);
   var name = response.match(new RegExp(username + '\\s\\((.+?)\\)'))[1];
   var balance = parseFloat(response.match(/\$(\d+\.\d+)/)[1]);
   var percent = balance / 96 * 100;
@@ -495,7 +508,9 @@ var checkPrinterInfo = function () {
   var currtime = Math.floor(new Date().getTime()/60000);
   console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
   if (localStorage.getItem('lastStored') == null || currtime-localStorage.getItem('lastStored') > 1440) {
-    storePrinterInfo(1);
+    storePrinterInfo(1, function (){
+      checkPrinterStatus($("#printer_select").val(), 1);    
+    });
   } else {
     console.log("Printer info is up-to-date.")
   }
@@ -504,9 +519,9 @@ var checkPrinterInfo = function () {
 //Puts printer page values in local storage. Called from checkPrinterInfo() and startPrint()
 var storePrinterInfo = function (attempt, callback) {
   stateBusy();
-  printMessage("Updating printer information. Please wait...");
-  console.log("Storing info on page " + attempt);
   if (attempt < 4) {
+    printMessage("Updating printer information. Please wait...");
+    console.log("Storing info on page " + attempt);
     var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
     getRequest(url, {}, function (response) {
       var lines = response.split("\n");
