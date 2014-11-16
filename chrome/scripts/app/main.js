@@ -194,8 +194,11 @@ var uploadFile = function (data, uploadUID) {
   var url = '/upload/'+ uploadUID;
   uploadRequest(url, data, function(response) {
     postRequest('/app', upload_file_payload, function(response) {
-      printMessage("File uploaded...");
-      attemptRelease(data, 0, parseInt(data.copies));
+      if ($("#release_default").is(':checked')){
+        attemptRelease(data, 0, parseInt(data.copies));
+      } else {
+        finishPrint();
+      }
     });
   });
 }
@@ -358,7 +361,6 @@ $(document).ready(function () {
 
   stateInitial();
   connectToServer();
-  //finishPrint();
 
   //building copies drop-down
   var copyselect = '';
@@ -500,7 +502,7 @@ var checkPrinterStatus = function (printer, attempt) {
       error: function () {console.log('error in get')}
     });
   } else {
-    printMessage("Welcome to JFP");
+    printMessage("Printer online");
   }
 }
 
