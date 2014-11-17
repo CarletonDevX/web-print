@@ -37,7 +37,7 @@ body {
 }
 
 .paper>li.big {
-  padding: 1.5em 0;
+  padding: 2em 0;
 }
 
 .paper>li.small {
@@ -170,7 +170,8 @@ h4 {
 .user {
   max-width: 18.8em;
   width: 100%;
-  padding-top: 2em;
+  padding-top: 1em;
+  padding-bottom: 2em;
   font-weight: 600;
 }
 

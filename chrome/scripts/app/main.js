@@ -245,9 +245,10 @@ var checkForRelease = function (successCallback) {
 
 var releaseFromQueue = function (data, url, copies) {
   getRequest(url, {}, function (response) {
-    var re = new RegExp("<a href=.*sp=(.*)\">");
-    var printname = response.match(re);
-    if (printname != null) {
+    //Check if it's virtual
+    if (new RegExp("This job may be printed at one of several possible printers").test(response)) {
+      var re = new RegExp("<a href=.*sp=(.*)\">");
+      var printname = response.match(re);
       releaseFromVirtual(data, printname[1], copies);
     } else {
       attemptRelease(data, 0, copies-1);
@@ -265,12 +266,10 @@ var releaseFromVirtual = function (data, printname, copies) {
 
 var finishPrint = function (data) {
   printMessage("Job complete.");
-
   //Check if it needs to log in again
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=1';
   getRequest(url, {}, function (response) {
-    var re = new RegExp("<title>Login</title>");
-    if (response.match(re)){
+    if (new RegExp("<title>Login</title>").test(response)){
       attemptLogin(data.username, data.password);
     } else {
       stateLogin();
@@ -492,7 +491,7 @@ var checkPrinterStatus = function (printer, attempt) {
           var message = lines[i].match(re);
           if (message != null) {
             if (message[1] != "Ready"){
-              printError("Warning: " + message[1]);
+              printError("Warning: " + message[1] + ".");
               return;
             }
           }
@@ -502,7 +501,7 @@ var checkPrinterStatus = function (printer, attempt) {
       error: function () {console.log('error in get')}
     });
   } else {
-    printMessage("Printer online");
+    printMessage("Printer online.");
   }
 }
 

@@ -13,8 +13,7 @@ Todo:
 - full list of printers with short name (display name) and long name (string used to access it in the request) [Ken]
 - stop storing login info in localstorage [Ken]
 
-Known bugs:]
-- can't print multiple copies from non-virtual printers
+Known bugs:
 - quota status bar doesn't always appear on load
 
 Printer Icon Credits:
