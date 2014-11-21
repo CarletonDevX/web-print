@@ -335,7 +335,7 @@ var validExts = ['xlam','xls','xlsb','xlsm','xlsx','xltm','xltx','pot','potm','p
                 'ppsx','ppt','pptm','pptx','doc','docm','docx','dot','dotm','dotx','rtf','pdf','xps'];
 
 var isValid = function (file) {
-    if (file.size >= 100000000) {
+    if (file.size >= 104857600) {
       return false;
     } else {
       return (new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$')).test(file.name);
