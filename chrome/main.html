@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>// JFP: Just Print //</title>
+  <title>JFP - Just Print</title>
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="styles/normalize.css">
   <link rel="stylesheet" href="styles/screen.css">
@@ -9,40 +9,52 @@
 </head>
 <body>
   <div class="wrapper">
-    <ul class="paper">
+    <ul class="printer">
       <div class="slot"></div>
-      <li class="big" align= "center">
-        <img src="img/printer.png" height=72 alt="Printer Icon" class="icon" style="margin-bottom: 20px">
+      <li class="big">
+        <img src="img/printer.png" alt="Printer Icon" class="printer-icon">
         <!--<h1><a href="#" class="printer-selector">Sayles</a></h1>-->
-        <select id="printer_select"></select>
-      </li>
-      <li class="login js-login">
-          <input class="js-login-user" type="text" name="username" placeholder="username" autocomplete="off"><br>
-          <input class="js-login-password" input type="password" name="password" placeholder="password" autocomplete="off">
+        <select class="printer-select"></select>
       </li>
       <li>
+        <div class="printer-login js-login">
+          <input class="js-login-user" type="text" placeholder="username" autocomplete="off"><br>
+          <input class="js-login-password" input type="password" placeholder="password" autocomplete="off">
+        </div>
+      </li>
+      <li class="nopad">
         <form id="fileform" enctype="multipart/form-data">
-          <!--<div class="uploader-visible js-uploader-visible">
-            <h4>Drag files here to print<br>or click to browse</h4>
-          </div> -->
-          <input class="js-uploader-invisible" type="file" name="datafile" size="100">
+          <input class="printer-input" type="file" name="datafile">
         </form>
       </li>
-      <li align= "center">
-        <label for="copy_select" style="margin-right: 10px"> Copies: </label> <select id="copy_select"></select>
-        <form action="">
-          <input id= "release_default" type="checkbox" checked>
-          <label for="release_default" style="margin-left: 5px"> Automatically release documents </label>
-        </form>
+      <li>
+        <label>
+          <select class="printer-copies"></select>
+          copies
+        </label>
+        <br />
+        <label style="margin-left: 5px">
+          <input class="printer-release" type="checkbox" checked>
+          Automatically release documents
+        </label>
       </li>
-      <li class="center"><input id= "printButton" type="button" class="button" value="Send to Printer"></li>
-      <li class="status-console" align= "center"> Welcome to JFP!</li>
+      <li>
+        <input class="printer-send" type="button" value="Send to Printer">
+      </li>
+      <li>
+        <span class="printer-status">
+          Welcome to JFP!
+        </span>
+      </li>
     </ul>
 
     <div class="user">
-    <div class="bar"><div class="bar-used js-used" style="width: 0%;"></div></div>
+      <div class="bar">
+        <div class="bar-used js-used" style="width: 0%;"></div>
+      </div>
       <span class="name js-name"></span>
       <span class="amount">$<span class="js-balance"></span></span>
     </div>
+  </div>
 </body>
 </html>

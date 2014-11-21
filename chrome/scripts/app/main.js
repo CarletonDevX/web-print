@@ -194,7 +194,7 @@ var uploadFile = function (data, uploadUID) {
   var url = '/upload/'+ uploadUID;
   uploadRequest(url, data, function(response) {
     postRequest('/app', upload_file_payload, function(response) {
-      if ($("#release_default").is(':checked')){
+      if ($(".printer-release").is(':checked')){
         attemptRelease(data, 0, parseInt(data.copies));
       } else {
         finishPrint();
@@ -366,7 +366,7 @@ $(document).ready(function () {
   for (i=1;i<=10;i++){
       copyselect += '<option value=' + i + '>' + i + '</option>';
   }
-  $('#copy_select').html(copyselect);
+  $('.printer-copies').html(copyselect);
 
   //building printers drop-down
   var printerselect = '';
@@ -374,11 +374,11 @@ $(document).ready(function () {
     var printername = printerDict[i].name;
     printerselect += '<option value=' + printerDict[i].long_name + '>' + printerDict[i].name + '</option>';
   }
-  $('#printer_select').html(printerselect);
-  $("#printer_select").prop("selectedIndex", -1);
+  $('.printer-select').html(printerselect);
+  $(".printer-select").prop("selectedIndex", -1);
 
   Printers.getClosestPrinter(function (closest) {
-    $("#printer_select").val(closest.long_name);
+    $(".printer-select").val(closest.long_name);
     checkPrinterStatus(closest.long_name, 1);
   });
 
@@ -392,8 +392,8 @@ $(document).ready(function () {
   }
 
   //printer field change
-  $('#printer_select').change(function() {
-    checkPrinterStatus($("#printer_select").val(), 1);
+  $('.printer-select').change(function() {
+    checkPrinterStatus($(".printer-select").val(), 1);
   });
 
   //login field change
@@ -411,7 +411,7 @@ $(document).ready(function () {
   });
 
 
-  $("#printButton").click(function () {
+  $(".printer-send").click(function () {
     if (sessionState != 4) {
       if (sessionState == 0) {
         printError("Not connected to server.");
@@ -427,8 +427,8 @@ $(document).ready(function () {
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
-          printer: $("#printer_select").val(),
-          copies: $("#copy_select").val(),
+          printer: $(".printer-select").val(),
+          copies: $(".printer-copies").val(),
           file: formdata
         };
         startPrint(data);
@@ -443,13 +443,13 @@ $(document).ready(function () {
 
 
 var printMessage = function (message) {
-  $('.status-console').css('color', 'black');
-  $('.status-console').text(message);
+  $('.printer-status').removeClass('.printer-status--error');
+  $('.printer-status').text(message);
 }
 
 var printError = function (message) {
-  $('.status-console').css('color', 'red');
-  $('.status-console').text(message);
+  $('.printer-status').addClass('.printer-status--error');
+  $('.printer-status').text(message);
 }
 
 var setInfoFromResponse = function (response) {
@@ -510,7 +510,7 @@ var checkPrinterInfo = function () {
   console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
   if (localStorage.getItem('lastStored') == null || currtime-localStorage.getItem('lastStored') > 1440) {
     storePrinterInfo(1, function (){
-      checkPrinterStatus($("#printer_select").val(), 1);    
+      checkPrinterStatus($(".printer-select").val(), 1);    
     });
   } else {
     console.log("Printer info is up-to-date.")
