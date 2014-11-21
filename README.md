@@ -1,21 +1,8 @@
 web-print
 =========
 
-Todo:
-- ~~implement the rest of the calls in JS to make a full request that actually prints~~
-- ~~rate limit login requests~~
-- ~~fully implement printer selection~~
-- ~~add file validation and error handling~~
-- ~~use location to find the closest popular printer~~
-- ~~let user specify number of copies~~
-- styling, Chrome icon [Robert]
-- progress indicator [Robert]
-- full list of printers with short name (display name) and long name (string used to access it in the request) [Ken]
-- stop storing login info in localstorage [Ken]
+Developed by [David Pickart](https://github.com/dpikt), [Ken Schiller](https://github.com/Kenadia), and [Robert Lord](https://github.com/lord).
 
-Known bugs:
-- quota status bar doesn't always appear on load
+Credits:
 
-Printer Icon Credits:
-
-> Printer by Icomatic from The Noun Project
+> Printer Icon by Icomatic from The Noun Project
