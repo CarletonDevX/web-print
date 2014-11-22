@@ -17,13 +17,23 @@
         <select class="printer-select"></select>
       </li>
       <li>
+        <span class="printer-status">
+          Welcome to JFP!
+        </span>
+      </li>
+      <li>
         <div class="printer-login js-login">
           <input class="js-login-user" type="text" placeholder="username" autocomplete="off"><br>
           <input class="js-login-password" input type="password" placeholder="password" autocomplete="off">
         </div>
       </li>
       <li class="nopad">
-        <form id="fileform" enctype="multipart/form-data">
+        <form class="printer-form" enctype="multipart/form-data">
+          <div class="printer-input-label">
+            Drag files here to print
+            <br />
+            Or click to browse
+          </div>
           <input class="printer-input" type="file" name="datafile">
         </form>
       </li>
@@ -40,11 +50,6 @@
       </li>
       <li>
         <input class="printer-send" type="button" value="Send to Printer">
-      </li>
-      <li>
-        <span class="printer-status">
-          Welcome to JFP!
-        </span>
       </li>
     </ul>
 

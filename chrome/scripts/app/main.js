@@ -410,6 +410,13 @@ $(document).ready(function () {
     fileToUpload = this.files[0];
   });
 
+  $('.printer-input').change(function () {
+    var filename = $(this).val().split('\\').pop();
+    if (filename) {
+      $('.printer-input-label').html(filename);
+      $('.printer-input-label').addClass('printer-input-label--hasFile');
+    }
+  });
 
   $(".printer-send").click(function () {
     if (sessionState != 4) {
