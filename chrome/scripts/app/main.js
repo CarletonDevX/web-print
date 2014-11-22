@@ -1,4 +1,4 @@
-define(['jquery', 'app/printers', 'debounce'], function ($, Printers) {  
+define(['jquery', 'app/printers', 'spin', 'debounce'], function ($, Printers, spin) {  
 
 /******************************
   Request helpers
