@@ -455,9 +455,8 @@ var printMessage = function (message) {
 }
 
 var printError = function (message) {
-  console.log("HI!");
-  $('.printer-status').text(message);
   $('.printer-status').addClass('printer-status--error');
+  $('.printer-status').text(message);
 }
 
 var setInfoFromResponse = function (response) {
