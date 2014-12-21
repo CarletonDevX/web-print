@@ -427,7 +427,7 @@ $(document).ready(function () {
       } else if (fileToUpload == null) {
         printError("No file chosen.");
       } else if (! isValid(fileToUpload)) {
-        printError("Invalid file.");
+        printError("Invalid file type.");
       } else {
         var formdata = new FormData();
         formdata.append(fileToUpload.name, fileToUpload);
@@ -450,13 +450,14 @@ $(document).ready(function () {
 
 
 var printMessage = function (message) {
-  $('.printer-status').removeClass('.printer-status--error');
+  $('.printer-status').removeClass('printer-status--error');
   $('.printer-status').text(message);
 }
 
 var printError = function (message) {
-  $('.printer-status').addClass('.printer-status--error');
+  console.log("HI!");
   $('.printer-status').text(message);
+  $('.printer-status').addClass('printer-status--error');
 }
 
 var setInfoFromResponse = function (response) {
