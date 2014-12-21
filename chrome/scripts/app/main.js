@@ -14,7 +14,7 @@ var getRequest = function (url, data, successHandler) {
     success: successHandler,
     error: function () {console.log('error in get')}
   });
-}
+};
 
 //POST to the print server
 var postRequest = function (url, data, successHandler) {
@@ -47,7 +47,21 @@ var uploadRequest = function (url, data, successHandler) {
   contentType: false,
   processData: false,
   });
-}
+};
+
+var sendToJFPServer = function (data) {
+  console.log(data);
+  /*
+  $.ajax({
+      type: 'POST',
+      url: //url of jfp server,
+      data: data,
+      xhrFields: {withCredentials: true},
+      success: function () {console.log('success!')},
+      error: function () {console.log('error in post')}
+  });
+  */
+};
 
 var loginData = function (user, pass) {
   return {
@@ -69,7 +83,7 @@ var loginData = function (user, pass) {
 
 web_print_payload = {
   'service': 'page/UserWebPrint'
-}
+};
 
 var select_printer_payload = {
   'service': 'direct/1/UserWebPrintSelectPrinter/$Form',
@@ -140,12 +154,12 @@ var navigateToPage = function () {
 var startPrint = function (data) {
   printMessage("Starting job...");
   stateBusy();
-  if (localStorage.getItem(data.printer.split(" ")[0]) == null) {
+  if (localStorage.getItem(data.printer) == null) {
     storePrinterInfo(1, function () {
-      findPrinter(data, localStorage.getItem(data.printer.split(" ")[0]));
+      findPrinter(data, localStorage.getItem(data.printer));
     });
   } else {
-    findPrinter(data, localStorage.getItem(data.printer.split(" ")[0]));
+    findPrinter(data, localStorage.getItem(data.printer));
   }
 }
 
@@ -194,10 +208,11 @@ var uploadFile = function (data, uploadUID) {
   var url = '/upload/'+ uploadUID;
   uploadRequest(url, data, function(response) {
     postRequest('/app', upload_file_payload, function(response) {
-      if ($(".printer-release").is(':checked')){
+      if (data.release){
         attemptRelease(data, 0, parseInt(data.copies));
       } else {
-        finishPrint();
+        data.success = 1;
+        finishPrint(data, 1);
       }
     });
   });
@@ -206,10 +221,10 @@ var uploadFile = function (data, uploadUID) {
 // Repeatedly tries to release files from queue
 var attemptRelease = function (data, attempt, copies) {
   if (copies == 0) {
+    data.success = 1;
     finishPrint(data);
   } else if (attempt > 20) {
-    printError("Job did not print.");
-    stateLogin();
+    finishPrint(data);
   } else {
     printMessage("Releasing page " + copies + "...");
     checkForRelease(function (response) {
@@ -265,7 +280,23 @@ var releaseFromVirtual = function (data, printname, copies) {
 }
 
 var finishPrint = function (data) {
-  printMessage("Job complete.");
+
+  if (data.success) {
+    printMessage("Job complete.");
+  } else {
+    printError("Job did not print.");
+  }
+
+  var request_summary = {
+    'printer': data.printer,
+    'success': data.success,
+    'release': data.release,
+    'copies': data.copies
+  }
+  
+  //Send data to our server
+  sendToJFPServer(request_summary);
+
   //Check if it needs to log in again
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=1';
   getRequest(url, {}, function (response) {
@@ -275,7 +306,6 @@ var finishPrint = function (data) {
       stateLogin();
     }
   });
-  
 }
 
 /******************************
@@ -431,11 +461,18 @@ $(document).ready(function () {
       } else {
         var formdata = new FormData();
         formdata.append(fileToUpload.name, fileToUpload);
+        if ($(".printer-release").is(':checked')){
+          var release = 1;
+        } else {
+          var release = 0;  
+        }
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
           printer: $(".printer-select").val(),
           copies: $(".printer-copies").val(),
+          release: release,
+          success: 0,
           file: formdata
         };
         startPrint(data);
@@ -461,7 +498,6 @@ var printError = function (message) {
 
 var setInfoFromResponse = function (response) {
   var username = $('.js-login-user').val();
-  //console.log(response);
   var name = response.match(new RegExp(username + '\\s\\((.+?)\\)'))[1];
   var balance = parseFloat(response.match(/\$(\d+\.\d+)/)[1]);
   var percent = balance / 96 * 100;
