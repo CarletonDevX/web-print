@@ -192,6 +192,11 @@ body {
   padding-bottom: 2em;
   font-weight: 600;
 }
+
+.user.hide {
+  opacity: 0;
+}
+
 .user .name {
   float: left;
 }

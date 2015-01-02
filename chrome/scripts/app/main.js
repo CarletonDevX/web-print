@@ -1,4 +1,4 @@
-define(['jquery', 'app/printers', 'spin', 'debounce'], function ($, Printers, spin) {  
+define(['jquery', 'app/printers', 'jquery.spin', 'debounce'], function ($, Printers) {  
 
 /******************************
   Request helpers
@@ -128,14 +128,15 @@ var connectToServer = function () {
 var attemptLogin = function (user, pass) {
   stateBusy();
   postRequest('/app', loginData(user, pass), function (response) {
-    var foot = response.substring(response.length - 500);
-    if (foot.indexOf('Invalid username or password') < 0
-      && foot.indexOf('You must enter a value for') < 0) {
+    if (response.indexOf('<title>Login</title>') >= 0) {
+      stateDenied();
+    } else if (response.indexOf('Your session has timed out.') >= 0) {
+      location.reload();
+    } else {
       storeLoginInfo(user, pass);
       setInfoFromResponse(response);
+      stateLogin();
       navigateToPage();
-    } else {
-      stateDenied();
     }
   });
 }
@@ -146,7 +147,6 @@ var navigateToPage = function () {
     //"Submit Job"
     getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
         checkPrinterInfo();
-        stateLogin();
     });
   });
 }
@@ -290,7 +290,6 @@ var finishPrint = function (data) {
   var request_summary = {
     'printer': data.printer,
     'success': data.success,
-    'release': data.release,
     'copies': data.copies
   }
   
@@ -328,6 +327,7 @@ var stateDenied = function () {
   sessionState = 2;
   $('.js-login input').addClass('invalid');
   $('.js-login input').removeClass('valid');
+  $('.user').addClass('hide');
 }
 
 // 3. Logged in
@@ -335,6 +335,7 @@ var stateLogin = function () {
   sessionState = 3;
   $('.js-login input').addClass('valid');
   $('.js-login input').removeClass('invalid');
+  $('.user').removeClass('hide');
 }
 
 // 4. Printing
