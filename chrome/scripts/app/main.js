@@ -475,6 +475,7 @@ $(document).ready(function () {
         // } else {
         //   var release = 0;  
         // }
+        var release = 1;
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
