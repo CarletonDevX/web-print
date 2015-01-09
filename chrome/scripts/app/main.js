@@ -470,11 +470,11 @@ $(document).ready(function () {
       } else {
         var formdata = new FormData();
         formdata.append(fileToUpload.name, fileToUpload);
-        if ($(".printer-release").is(':checked')){
-          var release = 1;
-        } else {
-          var release = 0;  
-        }
+        // if ($(".printer-release").is(':checked')){
+        //   var release = 1;
+        // } else {
+        //   var release = 0;  
+        // }
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
