@@ -565,7 +565,7 @@ var checkPrinterInfo = function () {
 var storePrinterInfo = function (attempt, callback) {
   stateBusy();
   if (attempt < 4) {
-    printMessage("Updating printer information. Please wait...");
+    printMessage("Updating printer info...");
     console.log("Storing info on page " + attempt);
     var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
     getRequest(url, {}, function (response) {
