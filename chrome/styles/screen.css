@@ -153,6 +153,15 @@ body {
   white-space: nowrap;
   overflow: hidden;
 }
+.printer-copies {
+  margin-left: 10px;
+}
+.printer-copies-label {
+  width: 45px;
+  margin-left: 5px;
+  display: inline-block;
+  text-align: left;
+}
 /* printer-status ---------------------------------------------- */
 .printer-status--error {
   color: red;

@@ -399,6 +399,12 @@ $(document).ready(function () {
   }
   $('.printer-copies').html(copyselect);
 
+  //detect plural copies
+  $('.printer-copies').on('change', function() {
+    var copies = $(this).val() == 1 ? 'copy' : 'copies';
+    $('.printer-copies-label').html(copies);
+  });
+
   //building printers drop-down
   var printerselect = '';
   for (i in printerDict){
