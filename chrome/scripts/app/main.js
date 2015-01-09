@@ -1,4 +1,4 @@
-define(['jquery', 'app/printers', 'jquery.spin', 'debounce'], function ($, Printers) {  
+define(['jquery', 'app/printers', 'spin', 'jquery.spin', 'debounce'], function ($, Printers, Spinner) {  
 
 /******************************
   Request helpers
@@ -314,12 +314,14 @@ var finishPrint = function (data) {
 // 0. Page load
 var stateInitial = function () {
   sessionState = 0;
+  stopSpin();
 }
 
 // 1. Session started with print server
 var stateReady = function () {
   console.log("Print server accessed.")
   sessionState = 1;
+  stopSpin();
 }
 
 // 2. Login attempt failed
@@ -328,6 +330,7 @@ var stateDenied = function () {
   $('.js-login input').addClass('invalid');
   $('.js-login input').removeClass('valid');
   $('.user').addClass('hide');
+  stopSpin();
 }
 
 // 3. Logged in
@@ -336,11 +339,19 @@ var stateLogin = function () {
   $('.js-login input').addClass('valid');
   $('.js-login input').removeClass('invalid');
   $('.user').removeClass('hide');
+  stopSpin();
 }
 
 // 4. Printing
 var stateBusy = function () {
+  $(".printer-send").addClass('busy');
+  spinner.spin(spin_target);
   sessionState = 4;
+}
+
+var stopSpin = function () {
+  spinner.stop();
+  $(".printer-send").removeClass('busy'); 
 }
 
 /******************************
@@ -380,6 +391,16 @@ var isValid = function (file) {
 var sessionState;
 var fileToUpload;
 var printerDict;
+
+var spin_opts = {
+    lines: 9, 
+    length: 4, 
+    width: 2,
+    radius: 3, 
+    color: '#333',
+};
+var spin_target = document.getElementById('spinner');
+var spinner = new Spinner(spin_opts);
 
 /******************************
   Interactivity initialization
@@ -530,6 +551,10 @@ var checkPrinterStatus = function (printer, attempt) {
         break;
     }
 
+    var ignoreMessages = [
+
+    ]
+
     //GET from printer status page
     $.ajax({
       type: 'GET',
@@ -542,7 +567,7 @@ var checkPrinterStatus = function (printer, attempt) {
         for (i in lines) {
           var message = lines[i].match(re);
           if (message != null) {
-            if (message[1] != "Ready"){
+            if (message[1] != "Ready" && message[1].indexOf('Paused') < 0){
               printError("Warning: " + message[1] + ".");
               return;
             }
