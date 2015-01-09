@@ -439,6 +439,8 @@ $(document).ready(function () {
       var pass = $('.js-login-password').val();
       if (user && pass) {
         attemptLogin(user, pass);
+      } else {
+        stateDenied();
       }
     }));
 
