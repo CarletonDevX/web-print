@@ -51,16 +51,14 @@ var uploadRequest = function (url, data, successHandler) {
 
 var sendToJFPServer = function (data) {
   console.log(data);
-  /*
   $.ajax({
       type: 'POST',
-      url: //url of jfp server,
+      url: 'http://104.236.107.74/add',
       data: data,
       xhrFields: {withCredentials: true},
       success: function () {console.log('success!')},
       error: function () {console.log('error in post')}
   });
-  */
 };
 
 var loginData = function (user, pass) {

@@ -7,6 +7,7 @@
 
     "permissions": [
         "https://print.ads.carleton.edu:9192/",
+        "http://104.236.107.74/",
         "tabs",
         "geolocation"
     ],
