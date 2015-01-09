@@ -34,13 +34,10 @@ body {
   text-align: center;
 }
 .printer > li {
-  padding: 1.1em 0;
+  margin: 1.2em 0;
 }
 .printer > li.big {
-  padding: 2em 0;
-}
-.printer > li.nopad {
-  padding: 0;
+  margin: 2em 0 1.2em;
 }
 .printer:after, .printer:before {
   content: "";
