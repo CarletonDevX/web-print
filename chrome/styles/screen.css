@@ -187,7 +187,7 @@ body {
 }
 
 .printer-send.busy {
-  opacity: .4;
+  opacity: .2;
 }
 
 .printer-send:focus, .printer-send:hover {

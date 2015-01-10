@@ -56,7 +56,7 @@ var sendToJFPServer = function (data) {
       url: 'http://104.236.107.74/add',
       data: data,
       xhrFields: {withCredentials: true},
-      success: function () {console.log('success!')},
+      success: function () {console.log('sent to server!')},
       error: function () {console.log('error in post')}
   });
 };
@@ -163,13 +163,13 @@ var startPrint = function (data) {
 
 // Navigate to correct page and find radio button
 var findPrinter = function (data, page) {
-  printMessage("Finding printer...");
+  printMessage("Connecting to printer...");
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + page;
   getRequest(url, {}, function (response) {
     var re = new RegExp("value=\"([0-9]+)\" .*\r" + data.printer.replace("\\", "\\\\"));
     var select = response.match(re);
     if (select != null) {
-      printMessage("Printer found...");
+      printMessage("Printer accessed...");
       submitSelection(data, select[1]);
     } else {
       printError("Printer not found.");
@@ -188,7 +188,7 @@ var submitSelection = function (data, select) {
 }
 
 
-// Submit print options and account selection - doesn't yet regard data.options
+// Submit print options and account selection
 var submitOptions = function (data, select) {
   var newpayload = print_options_payload;
   newpayload['$RadioGroup'] = select;
@@ -279,12 +279,6 @@ var releaseFromVirtual = function (data, printname, copies) {
 
 var finishPrint = function (data) {
 
-  if (data.success) {
-    printMessage("Job complete.");
-  } else {
-    printError("Job did not print.");
-  }
-
   var request_summary = {
     'printer': data.printer,
     'success': data.success,
@@ -297,6 +291,11 @@ var finishPrint = function (data) {
   //Check if it needs to log in again
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=1';
   getRequest(url, {}, function (response) {
+    if (data.success) {
+	  printMessage("Job complete.");
+	} else {
+	  printError("Job did not print.");
+	}
     if (new RegExp("<title>Login</title>").test(response)){
       attemptLogin(data.username, data.password);
     } else {
@@ -490,11 +489,11 @@ $(document).ready(function () {
         var formdata = new FormData();
         formdata.append(fileToUpload.name, fileToUpload);
         // if ($(".printer-release").is(':checked')){
-        //   var release = 1;
+        //   var release = true;
         // } else {
-        //   var release = 0;  
+        //   var release = false;  
         // }
-        var release = 1;
+        var release = true;
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
@@ -550,10 +549,6 @@ var checkPrinterStatus = function (printer, attempt) {
         break;
     }
 
-    var ignoreMessages = [
-
-    ]
-
     //GET from printer status page
     $.ajax({
       type: 'GET',
@@ -584,9 +579,11 @@ var checkPrinterStatus = function (printer, attempt) {
 var checkPrinterInfo = function () {
   var currtime = Math.floor(new Date().getTime()/60000);
   console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
-  if (localStorage.getItem('lastStored') == null || currtime-localStorage.getItem('lastStored') > 1440) {
+  if (localStorage.getItem('lastStored') == null || currtime-localStorage.getItem('lastStored') > 10080) {
+	printMessage("Performing weekly update...");
     storePrinterInfo(1, function (){
-      checkPrinterStatus($(".printer-select").val(), 1);    
+      checkPrinterStatus($(".printer-select").val(), 1);
+      stateLogin();    
     });
   } else {
     console.log("Printer info is up-to-date.")
@@ -597,7 +594,6 @@ var checkPrinterInfo = function () {
 var storePrinterInfo = function (attempt, callback) {
   stateBusy();
   if (attempt < 4) {
-    printMessage("Updating printer info...");
     console.log("Storing info on page " + attempt);
     var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
     getRequest(url, {}, function (response) {
