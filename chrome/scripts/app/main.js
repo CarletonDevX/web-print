@@ -50,14 +50,13 @@ var uploadRequest = function (url, data, successHandler) {
 };
 
 var sendToJFPServer = function (data) {
-  console.log(data);
   $.ajax({
       type: 'POST',
       url: 'http://104.236.107.74/add',
       data: data,
       xhrFields: {withCredentials: true},
-      success: function () {console.log('sent to server!')},
-      error: function () {console.log('error in post')}
+      success: function () {console.log('Sent to server!')},
+      error: function () {console.log('Error in post')}
   });
 };
 
@@ -124,7 +123,6 @@ var connectToServer = function () {
 
 // Log in with credentials
 var attemptLogin = function (user, pass) {
-  stateBusy();
   postRequest('/app', loginData(user, pass), function (response) {
     if (response.indexOf('<title>Login</title>') >= 0) {
       stateDenied();
@@ -133,6 +131,9 @@ var attemptLogin = function (user, pass) {
     } else {
       storeLoginInfo(user, pass);
       setInfoFromResponse(response);
+      if (localStorage.getItem('lastStored') == null) {
+        storeDefaultInfo();
+      }
       stateLogin();
       navigateToPage();
     }
@@ -279,6 +280,8 @@ var releaseFromVirtual = function (data, printname, copies) {
 
 var finishPrint = function (data) {
 
+  printMessage("Finishing job...");
+
   var request_summary = {
     'printer': data.printer,
     'success': data.success,
@@ -292,10 +295,10 @@ var finishPrint = function (data) {
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=1';
   getRequest(url, {}, function (response) {
     if (data.success) {
-	  printMessage("Job complete.");
-	} else {
-	  printError("Job did not print.");
-	}
+  	  printMessage("Job complete.");
+  	} else {
+  	  printError("Job did not print.");
+  	}
     if (new RegExp("<title>Login</title>").test(response)){
       attemptLogin(data.username, data.password);
     } else {
@@ -324,6 +327,8 @@ var stateReady = function () {
 // 2. Login attempt failed
 var stateDenied = function () {
   sessionState = 2;
+  localStorage.removeItem(0);
+  localStorage.removeItem(1);
   $('.js-login input').addClass('invalid');
   $('.js-login input').removeClass('valid');
   $('.user').addClass('hide');
@@ -425,7 +430,7 @@ $(document).ready(function () {
 
   //building printers drop-down
   var printerselect = '';
-  for (i in printerDict){
+  for (i in printerDict) {
     var printername = printerDict[i].name;
     printerselect += '<option value=' + printerDict[i].long_name + '>' + printerDict[i].name + '</option>';
   }
@@ -576,14 +581,24 @@ var checkPrinterStatus = function (printer, attempt) {
   }
 }
 
+
+var storeDefaultInfo = function () {
+  for (i in printerDict) {
+    localStorage.setItem(printerDict[i].name, printerDict[i].page);   
+  }
+  console.log("Printer information set to default.")    
+  var currtime = Math.floor(new Date().getTime()/60000);
+  localStorage.setItem('lastStored', currtime); 
+}
+
 var checkPrinterInfo = function () {
   var currtime = Math.floor(new Date().getTime()/60000);
   console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
-  if (localStorage.getItem('lastStored') == null || currtime-localStorage.getItem('lastStored') > 10080) {
-	printMessage("Performing weekly update...");
-    storePrinterInfo(1, function (){
+  if (currtime-localStorage.getItem('lastStored') > 10080) {
+    printMessage("Performing weekly update...");
+    storePrinterInfo(1, function () {
       checkPrinterStatus($(".printer-select").val(), 1);
-      stateLogin();    
+      stateLogin();
     });
   } else {
     console.log("Printer info is up-to-date.")
@@ -592,8 +607,8 @@ var checkPrinterInfo = function () {
 
 //Puts printer page values in local storage. Called from checkPrinterInfo() and startPrint()
 var storePrinterInfo = function (attempt, callback) {
-  stateBusy();
   if (attempt < 4) {
+    stateBusy();
     console.log("Storing info on page " + attempt);
     var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
     getRequest(url, {}, function (response) {
@@ -608,7 +623,6 @@ var storePrinterInfo = function (attempt, callback) {
       storePrinterInfo(attempt+1, callback);
     });
   } else {
-    printMessage("Printer information updated.")    
     var currtime = Math.floor(new Date().getTime()/60000);
     localStorage.setItem('lastStored', currtime);
     if (callback != null) {
