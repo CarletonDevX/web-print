@@ -225,7 +225,7 @@ var attemptRelease = function (data, attempt, copies) {
   } else if (attempt > 20) {
     finishPrint(data);
   } else {
-    printMessage("Releasing page " + copies + "...");
+    printMessage("Releasing copy " + copies + "...");
     checkForRelease(function (response) {
       var lines = response.split("\n");
       var url = null;
