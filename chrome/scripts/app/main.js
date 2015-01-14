@@ -222,7 +222,7 @@ var attemptRelease = function (data, attempt, copies) {
   if (copies == 0) {
     data.success = 1;
     finishPrint(data);
-  } else if (attempt > 20) {
+  } else if (attempt > 50) {
     finishPrint(data);
   } else {
     printMessage("Releasing copy " + copies + "...");
