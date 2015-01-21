@@ -314,46 +314,45 @@ var finishPrint = function (data) {
 // 0. Page load
 var stateInitial = function () {
   sessionState = 0;
-  stopSpin();
+  $(".printer-send").addClass('inactive');
 }
 
 // 1. Session started with print server
 var stateReady = function () {
   console.log("Print server accessed.")
   sessionState = 1;
-  stopSpin();
 }
 
 // 2. Login attempt failed
 var stateDenied = function () {
+  $(".printer-send").addClass('inactive');
   sessionState = 2;
   localStorage.removeItem(0);
   localStorage.removeItem(1);
-  $('.js-login input').addClass('invalid');
+  $('.js-login input').addClass('inactive');
   $('.js-login input').removeClass('valid');
   $('.user').addClass('hide');
-  stopSpin();
 }
 
 // 3. Logged in
 var stateLogin = function () {
   sessionState = 3;
   $('.js-login input').addClass('valid');
-  $('.js-login input').removeClass('invalid');
+  $('.js-login input').removeClass('inactive');
   $('.user').removeClass('hide');
   stopSpin();
 }
 
 // 4. Printing
 var stateBusy = function () {
-  $(".printer-send").addClass('busy');
+  $(".printer-send").addClass('inactive');
   spinner.spin(spin_target);
   sessionState = 4;
 }
 
 var stopSpin = function () {
   spinner.stop();
-  $(".printer-send").removeClass('busy'); 
+  $(".printer-send").removeClass('inactive'); 
 }
 
 /******************************
@@ -409,6 +408,7 @@ var spinner = new Spinner(spin_opts);
  ******************************/
 
 $(document).ready(function () {
+  //$(".printer-send").addClass('inactive');
 
   printerDict = Printers.printers;
 
@@ -594,8 +594,9 @@ var storeDefaultInfo = function () {
 var checkPrinterInfo = function () {
   var currtime = Math.floor(new Date().getTime()/60000);
   console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
-  if (currtime-localStorage.getItem('lastStored') > 10080) {
-    printMessage("Performing weekly update...");
+  //Every two weeks
+  if (currtime-localStorage.getItem('lastStored') > 20160) {
+    printMessage("Performing update...");
     storePrinterInfo(1, function () {
       checkPrinterStatus($(".printer-select").val(), 1);
       stateLogin();

@@ -151,7 +151,7 @@ body {
   border: 1px solid #ddd;
   outline: none;
   background-color: transparent;
-  color: #777;
+  color: #444;
   font-size: 14px;
   text-align: center;
   box-sizing: border-box;
@@ -159,7 +159,8 @@ body {
 .printer-login input:focus {
   border-color: #238CCC;
 }
-.printer-login input.valid {
+.printer-login input.valid:focus {
+  /*border-color: #209414;*/
 }
 .printer-login input.invalid {
 }
@@ -184,7 +185,7 @@ body {
 #spinner {
   position: relative;
 }
-.printer-send.busy {
+.printer-send.inactive {
   opacity: .2;
 }
 .printer-send:focus, .printer-send:hover {
