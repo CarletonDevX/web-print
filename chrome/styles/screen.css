@@ -8,7 +8,12 @@ body {
   font-family: "Source Sans Pro", sans-serif;
   background-color: #E8E8E8;
   font-size: 16px;
+  color: #333;
   -webkit-font-smoothing: antialiased;
+}
+a {
+  color: #238CCC;
+  text-decoration: none
 }
 /* wrapper ---------------------------------------------- */
 .wrapper {
@@ -21,9 +26,9 @@ body {
 }
 /* printer ---------------------------------------------- */
 .printer {
+  margin-top: 2em;
   background-color: #FCFCFC;
   box-shadow: 0px 0px 50px rgba(0,0,0,0.2);
-  /*border: 1px #999 solid;*/
   border-width: 0 1px;
   padding: 0.5em 1.5em;
   box-sizing: border-box;
@@ -118,7 +123,6 @@ body {
   top: calc(50% - 14px);
   left: 10%;
   background: #fcfcfc;
-  color: #444;
   font-weight: 600;
   font-size: 11px;
   text-transform: uppercase;
@@ -151,7 +155,6 @@ body {
   border: 1px solid #ddd;
   outline: none;
   background-color: transparent;
-  color: #444;
   font-size: 14px;
   text-align: center;
   box-sizing: border-box;
@@ -200,6 +203,7 @@ body {
 }
 /* user ---------------------------------------------- */
 .user {
+  flex: 1;
   max-width: 18.8em;
   width: 100%;
   padding-top: 1em;
@@ -227,6 +231,18 @@ body {
   background-color: #209414;
   height: 100%;
 }
+
+/* footer ---------------------------------------------- */
+.footer {
+  font-size: .8em;
+  height: 1.8em;
+  line-height: 1.5em;
+  width: 100%;
+  text-align: center;
+  background: #CCC;
+}
+
+
 /* legacy ---------------------------------------------- */
 /*
 h1 {

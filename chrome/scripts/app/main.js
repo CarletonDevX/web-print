@@ -364,8 +364,7 @@ var storeLoginInfo = function (user, pass) {
   localStorage.setItem(1, obfuscate(pass));
 }
 
-//Silly ascii manipulation so passwords aren't clearly visible. 
-//We should stop storing login info in local storage asap though.
+//So passwords aren't readable in localstorage 
 var obfuscate = function (pass) {
   var newpass = "";
   for (i in pass) {
@@ -493,11 +492,11 @@ $(document).ready(function () {
       } else {
         var formdata = new FormData();
         formdata.append(fileToUpload.name, fileToUpload);
-        // if ($(".printer-release").is(':checked')){
-        //   var release = true;
-        // } else {
-        //   var release = false;  
-        // }
+        /*if ($(".printer-release").is(':checked')){
+          var release = true;
+        } else {
+          var release = false;  
+        }*/
         var release = true;
         var data = {
           username: $(".js-login-user").val(),
