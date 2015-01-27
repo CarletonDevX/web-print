@@ -476,6 +476,9 @@ $(document).ready(function () {
     if (filename) {
       $('.printer-input-label').html(filename);
       $('.printer-input-label').addClass('printer-input-label--hasFile');
+    } else {
+      $('.printer-input-label').html('Drag files here to print<br/>Or click to browse');
+      $('.printer-input-label').removeClass('printer-input-label--hasFile');
     }
   });
 
