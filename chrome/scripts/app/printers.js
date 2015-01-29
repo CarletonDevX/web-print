@@ -53,7 +53,7 @@ define([], function () {
     { name: 'Olin 311 (Color)', long_name: 'print\\OLIN311-CC5051', page: 3 },
     { name: 'Rec Center 105 (Color)', long_name: 'print\\RSC105-CC5051', page: 3 },
     { name: 'Rec Center 235 (Color)', long_name: 'print\\RSC235-CC5051', page: 3 },
-    { name: 'Sayles Lab', long_name: 'print\\SAYL-Public-X4600', longitude: -93.156028, latitude: 44.461604, page: 3 },
+    { name: 'Sayles Lab', long_name: 'print\\SAYL-Public-X5550', longitude: -93.156028, latitude: 44.461604, page: 3 },
     { name: 'Sayles 050', long_name: 'print\\SAYL050-X6360', page: 3 },
     { name: 'Sayles 057', long_name: 'print\\SAYL057-CC5051', page: 3 },
     { name: 'Sayles 109', long_name: 'print\\SAYL109A-X4510', page: 3 },

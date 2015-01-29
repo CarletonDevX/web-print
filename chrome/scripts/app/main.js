@@ -585,7 +585,7 @@ var checkPrinterStatus = function (printer, attempt) {
 
 var storeDefaultInfo = function () {
   for (i in printerDict) {
-    localStorage.setItem(printerDict[i].name, printerDict[i].page);   
+    localStorage.setItem(printerDict[i].long_name, printerDict[i].page);   
   }
   console.log("Printer information set to default.")    
   var currtime = Math.floor(new Date().getTime()/60000);
