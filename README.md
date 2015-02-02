@@ -1,4 +1,4 @@
-web-print
+Just Print
 =========
 
 Developed by [David Pickart](https://github.com/dpikt), [Ken Schiller](https://github.com/Kenadia), and [Robert Lord](https://github.com/lord). 
