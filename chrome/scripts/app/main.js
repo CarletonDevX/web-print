@@ -174,7 +174,7 @@ var findPrinter = function (data, page) {
       submitSelection(data, select[1]);
     } else {
       printError("Printer not found.");
-      stateLogin();
+      finishPrint(data);
     }
   });
 }
@@ -280,7 +280,9 @@ var releaseFromVirtual = function (data, printname, copies) {
 
 var finishPrint = function (data) {
 
-  printMessage("Finishing job...");
+  if (data.success) {
+    printMessage("Finishing job...");
+  }
 
   var request_summary = {
     'printer': data.printer,
