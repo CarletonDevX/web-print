@@ -223,6 +223,7 @@ var attemptRelease = function (data, attempt, copies) {
     data.success = 1;
     finishPrint(data);
   } else if (attempt > 200) {
+    data.success = 1;
     finishPrint(data);
   } else {
     printMessage("Releasing copy " + copies + "...");
@@ -502,10 +503,18 @@ $(document).ready(function () {
           var release = false;  
         }*/
         var release = true;
+        var selected_printer = $(".printer-select").val();
+        for (i in printerDict) {
+          if (selected_printer == printerDict[i].long_name) {
+            if (printerDict[i].autorelease != null) {
+              release = printerDict[i].autorelease
+            }
+          }
+        }
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
-          printer: $(".printer-select").val(),
+          printer: selected_printer,
           copies: $(".printer-copies").val(),
           release: release,
           success: 0,

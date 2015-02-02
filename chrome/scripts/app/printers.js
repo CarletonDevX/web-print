@@ -58,7 +58,7 @@ define([], function () {
     { name: 'Sayles 057', long_name: 'print\\SAYL057-CC5051', page: 3 },
     { name: 'Sayles 109', long_name: 'print\\SAYL109A-X4510', page: 3 },
     { name: 'Sayles 150', long_name: 'print\\SAYL150-X4510', page: 3 },
-    { name: 'Scoville 014 (Color)', long_name: 'print\\SCOV014-CC5051', page: 3 },
+    { name: 'Scoville 014 (Color)', long_name: 'print\\SCOV014-CC5051', page: 3, autorelease: false },
     { name: 'Severance 014 (Color)', long_name: 'print\\SEVY014-CC5051', page: 3 },
     { name: 'Severance 129 (Color)', long_name: 'print\\SEVY129-CC5051', page: 3 },
     { name: 'Strong House 107 (Color)', long_name: 'print\\STRG107-CC5051', page: 3 },
