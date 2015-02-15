@@ -439,9 +439,20 @@ $(document).ready(function () {
   $('.printer-select').html(printerselect);
   $(".printer-select").prop("selectedIndex", -1);
 
+
+  var printerSelected = false;
+
+  //printer field change
+  $('.printer-select').change(function() {
+    printerSelected = true;
+    checkPrinterStatus($(".printer-select").val(), 1);
+  });
+
   Printers.getClosestPrinter(function (closest) {
-    $(".printer-select").val(closest.long_name);
-    checkPrinterStatus(closest.long_name, 1);
+    if (!printerSelected) {
+      $(".printer-select").val(closest.long_name);
+      checkPrinterStatus(closest.long_name, 1);
+    }
   });
 
   //retrieving login info
@@ -452,11 +463,6 @@ $(document).ready(function () {
     $('.js-login-password').val(pass);
     attemptLogin(user, pass);
   }
-
-  //printer field change
-  $('.printer-select').change(function() {
-    checkPrinterStatus($(".printer-select").val(), 1);
-  });
 
   //login field change
   $('.js-login input').bind('input propertychange', $.debounce(500, function () {
