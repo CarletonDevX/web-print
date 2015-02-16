@@ -626,7 +626,7 @@ var checkPrinterInfo = function () {
 
 //Puts printer page values in local storage. Called from checkPrinterInfo() and startPrint()
 var storePrinterInfo = function (attempt, callback) {
-  if (attempt < 4) {
+  if (attempt <= 4) {
     stateBusy();
     console.log("Storing info on page " + attempt);
     var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
