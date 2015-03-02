@@ -410,12 +410,16 @@ var spinner = new Spinner(spin_opts);
  ******************************/
 
 $(document).ready(function () {
-  //$(".printer-send").addClass('inactive');
 
   printerDict = Printers.printers;
 
   stateInitial();
   connectToServer();
+
+  //feedback form
+  $('#feedback').click(function () {
+    alert('Send suggestions and bug reports to pickartd@carleton.edu!');
+  });
 
   //building copies drop-down
   var copyselect = '';
