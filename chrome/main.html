@@ -41,7 +41,7 @@
           <select class="printer-copies"></select>
           <span class="printer-copies-label">copy</span>
         </label>
-        <!-- <br />
+<!--         <br />
         <label style="margin-left: 5px">
           <input class="printer-release" type="checkbox" checked>
           Automatically release documents
@@ -61,10 +61,26 @@
       <span class="name js-name"></span>
       <span class="amount">$<span class="js-balance"></span></span>
     </div>
-
     <div class="footer">
-      Just Print is a <a href="https://www.facebook.com/carletondevx">Carleton DevX</a> project. Got <a href="#" id="feedback">feedback</a>?
+      Just Print is a <a href="https://www.facebook.com/carletondevx">Carleton DevX</a> project. <a href="#" class="faq_popup_open">FAQ</a>
     </div>
+
+
+    <!-- POPUP -->
+    <div id="faq_popup" style="display:none">
+      <div id="faq-content">
+        <h3> Frequently Asked Questions </h3>
+        <dl id="faq-list">
+          <dt>Why can't I choose whether to print double-sided?</dt>
+          <dd>Under the hood, Just Print works by sending automated requests to PaperCut's <a href="http://go.carleton.edu/webprint">Web Print</a> service. Right now, that service doesn't support double-sided printing- so, neither can we! </dd>
+          <dt>Why can't I print more than 10 copies?</dt>
+          <dd>Same reason as above.</dd>
+          <dt>What do I do if it's just not printing?</dt>
+          <dd>Just Print records some errors, but we can't be sure it catches everything. If you notice any bugs (or have feedback of any sort) please let us know at <a href="mailto:pickartd@carleton.edu"> pickartd@carleton.edu</a>. </dd>
+        </dl>
+      </div>
+    </div>
+
   </div>
 </body>
 </html>

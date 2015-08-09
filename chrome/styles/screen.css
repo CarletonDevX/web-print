@@ -13,7 +13,9 @@ body {
 }
 a {
   color: #238CCC;
-  text-decoration: none
+  text-decoration: none;
+  border:0;
+  outline:none;
 }
 /* wrapper ---------------------------------------------- */
 .wrapper {
@@ -242,62 +244,40 @@ a {
   background: #CCC;
 }
 
+/* faq popup ---------------------------------------------- */
 
-/* legacy ---------------------------------------------- */
-/*
-h1 {
-  font-size: 1.5em;
-  font-weight: 600;
-  text-align: center;
-  margin: 0.8em 0 0 0;
+#faq_popup {
+  transform: scale(0.8);
 }
-h4 {
-  font-size: 0.7em;
-  text-transform: uppercase;
-  font-weight: 600;
+
+.popup_visible #faq_popup {
+  transform: scale(1);
+}
+
+#faq-content {
+  font-size: .9em;
+  max-width: 25em;
   text-align: center;
+  padding: .5em 2em;
+  background: white;
+  border-radius: 5px;
+}
+
+#faq-content h3 {
+  color: #0C70AC;
+}
+
+#faq-list {
+  text-align: left;
+  line-height: 1.5em;
+}
+
+#faq-list dt {
+  font-weight: bold;
+}
+
+#faq-list dd {
   margin: 0;
-  color: #616161;
-}
-*/
-/* printer-selector ---------------------------------------------- */
-/*
-.printer-selector {
-  color: #000;
-  text-decoration: none;
-  position: relative;
+  padding-bottom: 1em;
 }
 
-.printer-selector:hover {
-  color: #238CCC;
-  text-decoration: none;
-  position: relative;
-}
-
-.printer-selector:hover:after {
-  border-top-color: #238CCC;
-}
-.printer-selector:after {
-  content: "";
-  display: block;
-  width: 0;
-  height: 0;
-  position: absolute;
-  bottom: 0.3em;
-  right: -0.5em;
-  border-width: 0.28em 0.15em 0.15em 0.15em;
-  border-style: solid;
-  border-color: #333 transparent transparent transparent;
-}
-*/
-/* fancy glass ---------------------------------------------- */
-/*
-.printer-login input {
-  -webkit-box-shadow: 0px 1px 0px 0px rgba(238, 238, 238, 0.3);
-  -moz-box-shadow: 0px 1px 0px 0px rgba(238, 238, 238, 0.3);
-  box-shadow: 0px 1px 0px 0px rgba(238, 238, 238, 0.3);
-  background-image: -webkit-linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0));
-  background-image: -o-linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0));
-  background-image: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0));
-}
-*/

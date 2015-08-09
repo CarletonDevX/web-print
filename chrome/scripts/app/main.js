@@ -1,4 +1,4 @@
-define(['jquery', 'app/printers', 'spin', 'jquery.spin', 'debounce'], function ($, Printers, Spinner) {  
+define(['jquery', 'app/printers', 'spin', 'popupoverlay', 'debounce'], function ($, Printers, Spinner) {  
 
 /******************************
   Request helpers
@@ -64,12 +64,12 @@ var loginData = function (user, pass) {
   return {
     'service': 'direct/1/Home/$Form$0',
     'sp': 'S0',
-    'Form0': '$Hidden$0,$Hidden$1,inputUsername,inputPassword,$PropertySelection,$Submit$0',
+    'Form0': '$Hidden$0,$Hidden$1,inputUsername,inputPassword,$PropertySelection$0,$Submit$0',
     '$Hidden$0': 'true',
     '$Hidden$1': 'X',
     'inputUsername': user,
     'inputPassword': pass,
-    '$PropertySelection': 'en',
+    '$PropertySelection$0': 'en',
     '$Submit$0': 'Log in'
   }
 }
@@ -195,6 +195,7 @@ var submitOptions = function (data, select) {
   newpayload['$RadioGroup'] = select;
   newpayload['copies'] = data.copies;
   postRequest('/app', newpayload, function (response) {
+    console.log(response);
     //Pulling out UID for use in the next request
     var re = new RegExp("uploadUID = \'([0-9]+)\'");
     var uploadUID = response.match(re)[1];
@@ -411,15 +412,15 @@ var spinner = new Spinner(spin_opts);
 
 $(document).ready(function () {
 
+  // init faq popup
+  $('#faq_popup').popup({
+    transition: 'all 0.3s'
+  });
+
   printerDict = Printers.printers;
 
   stateInitial();
   connectToServer();
-
-  //feedback form
-  $('#feedback').click(function () {
-    alert('Send suggestions and bug reports to pickartd@carleton.edu!');
-  });
 
   //building copies drop-down
   var copyselect = '';
