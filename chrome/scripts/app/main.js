@@ -167,7 +167,8 @@ var findPrinter = function (data, page) {
   printMessage("Connecting to printer...");
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + page;
   getRequest(url, {}, function (response) {
-    var re = new RegExp("value=\"([0-9]+)\" .*\r" + data.printer.replace("\\", "\\\\"));
+    var re = new RegExp("value=\"([0-9]+)\" .*\n" + data.printer.replace("\\", "\\\\"));
+    console.log("value=\"([0-9]+)\" .*\n" + data.printer);
     var select = response.match(re);
     if (select != null) {
       printMessage("Printer accessed...");
@@ -292,8 +293,8 @@ var finishPrint = function (data) {
     'copies': data.copies
   }
   
-  //Send data to our server
-  sendToJFPServer(request_summary);
+  //Send data to our server TODO: get server back online
+  // sendToJFPServer(request_summary);
 
   //Check if it needs to log in again
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=1';
