@@ -1,4 +1,4 @@
-define(['jquery', 'app/printers', 'spin', 'popupoverlay', 'debounce'], function ($, Printers, Spinner) {  
+define(['jquery', 'app/printers', 'spin', 'popupoverlay', 'debounce', 'select2'], function ($, Printers, Spinner) {  
 
 /******************************
   Request helpers
@@ -168,7 +168,6 @@ var findPrinter = function (data, page) {
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + page;
   getRequest(url, {}, function (response) {
     var re = new RegExp("value=\"([0-9]+)\" .*\n" + data.printer.replace("\\", "\\\\"));
-    console.log("value=\"([0-9]+)\" .*\n" + data.printer);
     var select = response.match(re);
     if (select != null) {
       printMessage("Printer accessed...");
@@ -425,7 +424,7 @@ $(document).ready(function () {
 
   //building copies drop-down
   var copyselect = '';
-  for (i=1;i<=10;i++){
+  for (var i=1;i<=10;i++){
       copyselect += '<option value=' + i + '>' + i + '</option>';
   }
   $('.printer-copies').html(copyselect);
@@ -437,26 +436,26 @@ $(document).ready(function () {
   });
 
   //building printers drop-down
-  var printerselect = '';
-  for (i in printerDict) {
+  var printerselect = '<option></option>';
+  for (var i in printerDict) {
     var printername = printerDict[i].name;
     printerselect += '<option value=' + printerDict[i].long_name + '>' + printerDict[i].name + '</option>';
   }
   $('.printer-select').html(printerselect);
-  $(".printer-select").prop("selectedIndex", -1);
-
+  $('.printer-select').select2({placeholder: "Finding closest printer..."});
+  $('.printer-select').select2("val", "");
 
   var printerSelected = false;
 
   //printer field change
   $('.printer-select').change(function() {
     printerSelected = true;
-    checkPrinterStatus($(".printer-select").val(), 1);
+    checkPrinterStatus($(".printer-select").select2("val"), 1);
   });
 
   Printers.getClosestPrinter(function (closest) {
     if (!printerSelected) {
-      $(".printer-select").val(closest.long_name);
+      $(".printer-select").select2("val", closest.long_name);
       checkPrinterStatus(closest.long_name, 1);
     }
   });
@@ -515,7 +514,7 @@ $(document).ready(function () {
           var release = false;  
         }*/
         var release = true;
-        var selected_printer = $(".printer-select").val();
+        var selected_printer = $(".printer-select").select2("val");
         for (i in printerDict) {
           if (selected_printer == printerDict[i].long_name) {
             if (printerDict[i].autorelease != null) {

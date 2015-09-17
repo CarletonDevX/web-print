@@ -90,12 +90,19 @@ a {
   content: "";
   display: block;
 }
+
 /* printer-icon ---------------------------------------------- */
 .printer-icon {
   display: block;
   height: 72px;
   margin: 0 auto 20px;
 }
+
+/* printer-select ---------------------------------------------- */
+.printer-select {
+  width: 100%;
+}
+
 /* printer-status ---------------------------------------------- */
 .printer-status--error {
   color: red;
