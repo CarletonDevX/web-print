@@ -40,7 +40,7 @@ var uploadRequest = function (url, data, successHandler) {
             }
             return myXhr;
         },
-  data: data.file,
+  data: data.files,
   success: successHandler,
   error: function (e) {console.log(e);},
   cache: false,
@@ -195,7 +195,7 @@ var submitOptions = function (data, select) {
   newpayload['$RadioGroup'] = select;
   newpayload['copies'] = data.copies;
   postRequest('/app', newpayload, function (response) {
-    console.log(response);
+
     //Pulling out UID for use in the next request
     var re = new RegExp("uploadUID = \'([0-9]+)\'");
     var uploadUID = response.match(re)[1];
@@ -209,7 +209,7 @@ var uploadFile = function (data, uploadUID) {
   uploadRequest(url, data, function(response) {
     postRequest('/app', upload_file_payload, function(response) {
       if (data.release){
-        attemptRelease(data, 0, parseInt(data.copies));
+        attemptRelease(data, 0, data.copies * data.numfiles);
       } else {
         data.success = 1;
         finishPrint(data, 1);
@@ -219,15 +219,17 @@ var uploadFile = function (data, uploadUID) {
 }
 
 // Repeatedly tries to release files from queue
-var attemptRelease = function (data, attempt, copies) {
-  if (copies == 0) {
+var attemptRelease = function (data, attempt, docsRemaining) {
+  if (docsRemaining == 0) {
     data.success = 1;
     finishPrint(data);
   } else if (attempt > 200) {
     data.success = 1;
     finishPrint(data);
   } else {
-    printMessage("Releasing copy " + copies + "...");
+    var numDocs = data.copies * data.numfiles;
+    var numComplete = (numDocs - docsRemaining) + 1;
+    printMessage("Releasing document " + numComplete + "/" + numDocs + "...");
     checkForRelease(function (response) {
       var lines = response.split("\n");
       var url = null;
@@ -246,9 +248,9 @@ var attemptRelease = function (data, attempt, copies) {
           }
         }
         var finalurl = hrefs[0].substring(6, hrefs[0].length-1).replace('&amp;', '&');
-        releaseFromQueue(data, finalurl, copies);
+        releaseFromQueue(data, finalurl, docsRemaining);
       } else {
-        setTimeout(function(){attemptRelease(data, attempt+1, copies)}, 500);
+        setTimeout(function(){attemptRelease(data, attempt+1, docsRemaining)}, 500);
       }
     });
   }
@@ -259,24 +261,24 @@ var checkForRelease = function (successCallback) {
   getRequest('/app?service=page/UserReleaseJobs', {}, successCallback);
 }
 
-var releaseFromQueue = function (data, url, copies) {
+var releaseFromQueue = function (data, url, docsRemaining) {
   getRequest(url, {}, function (response) {
     //Check if it's virtual
     if (new RegExp("This job may be printed at one of several possible printers").test(response)) {
       var re = new RegExp("<a href=.*sp=(.*)\">");
       var printname = response.match(re);
-      releaseFromVirtual(data, printname[1], copies);
+      releaseFromVirtual(data, printname[1], docsRemaining);
     } else {
-      attemptRelease(data, 0, copies-1);
+      attemptRelease(data, 0, docsRemaining-1);
     }
   });
 }
 
 //For releasing from virtual printers
-var releaseFromVirtual = function (data, printname, copies) {
+var releaseFromVirtual = function (data, printname, docsRemaining) {
   var url = "/app?service=direct/1/UserReleaseJobs/$ReleaseStationJobs.$DirectLink&sp=Sprint&sp="+printname;
   getRequest(url, {}, function (response) {
-    attemptRelease(data, 0, copies-1);
+    attemptRelease(data, 0, docsRemaining-1);
   });
 }
 
@@ -380,12 +382,20 @@ var obfuscate = function (pass) {
 var validExts = ['xlam','xls','xlsb','xlsm','xlsx','xltm','xltx','pot','potm','potx','ppam','pps','ppsm',
                 'ppsx','ppt','pptm','pptx','doc','docm','docx','dot','dotm','dotx','rtf','pdf','xps'];
 
-var isValid = function (file) {
-    if (file.size >= 104857600) {
-      return false;
-    } else {
-      return (new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$')).test(file.name);
+var areValidFiles = function (files) {
+  var sizeSum = 0;
+  var extensionCheck = new RegExp('(' + validExts.join('|').replace(/\./g, '\\.') + ')$');
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    if (extensionCheck.test(file.name) == false) {
+        return false;
     }
+    sizeSum += file.size;
+  }
+  if (sizeSum >= 104857600) {
+      return false;
+  }
+  return true;
 }
 
 /*************************
@@ -393,7 +403,7 @@ var isValid = function (file) {
 **************************/
 
 var sessionState;
-var fileToUpload;
+var filesToUpload;
 var printerDict;
 
 var spin_opts = {
@@ -481,16 +491,16 @@ $(document).ready(function () {
     }));
 
   //file change
-  $(':file').change(function() {
-    if (this.files[0]!=null) {
-      fileToUpload = this.files[0];
-    }
-  });
-
   $('.printer-input').change(function () {
-    var filename = $(this).val().split('\\').pop();
-    if (filename) {
-      $('.printer-input-label').html(filename);
+    var files = this.files;
+    if (files.length > 0) {
+      filesToUpload = files;
+      var filenames = "";
+      for (var i = 0; i < files.length; i++) {
+        filenames += files[i].name;
+        if (i != files.length-1) filenames += ", ";
+      }
+      $('.printer-input-label').html(filenames);
       $('.printer-input-label').addClass('printer-input-label--hasFile');
     }
   });
@@ -501,13 +511,16 @@ $(document).ready(function () {
         printError("Not connected to server.");
       } else if (sessionState == 2) {
         printError("Not logged in.");
-      } else if (fileToUpload == null) {
-        printError("No file chosen.");
-      } else if (! isValid(fileToUpload)) {
-        printError("Invalid file type.");
+      } else if (filesToUpload == null) {
+        printError("No files chosen.");
+      } else if (!areValidFiles(filesToUpload)) {
+        printError("Invalid file type(s).");
       } else {
         var formdata = new FormData();
-        formdata.append(fileToUpload.name, fileToUpload);
+        for (var i = 0; i < filesToUpload.length; i++) {
+          var file = filesToUpload[i];
+          formdata.append(file.name, file);
+        };
         /*if ($(".printer-release").is(':checked')){
           var release = true;
         } else {
@@ -522,14 +535,16 @@ $(document).ready(function () {
             }
           }
         }
+
         var data = {
           username: $(".js-login-user").val(),
           password: $(".js-login-password").val(),
           printer: selected_printer,
-          copies: $(".printer-copies").val(),
+          copies: parseInt($(".printer-copies").val()),
+          numfiles: filesToUpload.length,
           release: release,
           success: 0,
-          file: formdata
+          files: formdata
         };
         startPrint(data);
       }
