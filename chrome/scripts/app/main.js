@@ -52,11 +52,19 @@ var uploadRequest = function (url, data, successHandler) {
 var sendToJFPServer = function (data) {
   $.ajax({
       type: 'POST',
-      url: 'http://104.236.107.74/add',
+      url: 'http://45.55.59.57/add',
       data: data,
-      xhrFields: {withCredentials: true},
       success: function () {console.log('Sent to server!')},
       error: function () {console.log('Error in post')}
+  });
+};
+
+var getStatusFromServer = function (callback) {
+  $.ajax({
+      type: 'GET',
+      url: 'http://45.55.59.57/status',
+      success: callback,
+      error: function () {console.log('Error in get')}
   });
 };
 
@@ -295,7 +303,7 @@ var finishPrint = function (data) {
   }
   
   //Send data to our server TODO: get server back online
-  // sendToJFPServer(request_summary);
+  sendToJFPServer(request_summary);
 
   //Check if it needs to log in again
   var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=1';
@@ -405,6 +413,7 @@ var areValidFiles = function (files) {
 var sessionState;
 var filesToUpload;
 var printerDict;
+var useLocation;
 
 var spin_opts = {
     lines: 9, 
@@ -422,6 +431,15 @@ var spinner = new Spinner(spin_opts);
 
 $(document).ready(function () {
 
+  // If there are errors from the server, 
+  // shut the whole operation down
+  getStatusFromServer(function (response) {
+    if (response.errors) {
+      $('.error-pane').addClass("shown");
+      $('#error-message').html(response.errors);
+    }
+  })
+
   // init faq popup
   $('#faq_popup').popup({
     transition: 'all 0.3s'
@@ -431,6 +449,23 @@ $(document).ready(function () {
 
   stateInitial();
   connectToServer();
+
+  // Location-based or last-used printer?
+  if (localStorage.getItem('last-used-printer')) {
+    useLocation = false;
+  } else {
+    useLocation = true;
+  }
+  $('#printer-default-checkbox').prop('checked', !useLocation);
+
+  $('#printer-default-checkbox').change(function () {
+    useLocation = !this.checked;
+    if (useLocation) {
+      localStorage.removeItem('last-used-printer');
+    } else {
+      localStorage.setItem('last-used-printer', $(".printer-select").select2("val"));
+    }
+  });
 
   //building copies drop-down
   var copyselect = '';
@@ -460,15 +495,23 @@ $(document).ready(function () {
   //printer field change
   $('.printer-select').change(function() {
     printerSelected = true;
-    checkPrinterStatus($(".printer-select").select2("val"), 1);
+    var selectedPrinter = $(".printer-select").select2("val");
+    checkPrinterStatus(selectedPrinter, 1);
+    localStorage.setItem('last-used-printer', selectedPrinter);
   });
 
-  Printers.getClosestPrinter(function (closest) {
-    if (!printerSelected) {
-      $(".printer-select").select2("val", closest.long_name);
-      checkPrinterStatus(closest.long_name, 1);
-    }
-  });
+  if (useLocation) {
+    Printers.getClosestPrinter(function (closest) {
+      if (!printerSelected) {
+        $(".printer-select").select2("val", closest.long_name);
+        checkPrinterStatus(closest.long_name, 1);
+      }
+    });
+  } else {
+    var lastUsed = localStorage.getItem('last-used-printer');
+    $(".printer-select").select2("val", lastUsed);
+    checkPrinterStatus(lastUsed, 1);
+  }
 
   //retrieving login info
   if (localStorage.getItem(0) != null) {

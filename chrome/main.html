@@ -10,6 +10,7 @@
 </head>
 <body>
   <div class="wrapper">
+    <div class="error-pane"> <h4 id="error-message"></h4> </div>
     <ul class="printer">
       <div class="slot"></div>
       <li class="big">
@@ -76,6 +77,11 @@
           <dd>Under the hood, Just Print works by sending automated requests to PaperCut's <a href="http://go.carleton.edu/webprint">Web Print</a> service. Right now, that service doesn't support double-sided printing- so, neither can we! </dd>
           <dt>Why can't I print more than 10 copies?</dt>
           <dd>Same reason as above.</dd>
+          <dt> I don't always want to use the closest printer. </dt>
+          <dd> 
+            That's really more of a demand than a question, but if you want to turn off location services and default to your last-used printer just check this box:
+            <input id="printer-default-checkbox" style="margin: 2px;" type="checkbox">
+          </dd>
           <dt>What do I do if it's just not printing?</dt>
           <dd>Just Print records some errors, but we can't be sure it catches everything. If you notice any bugs (or have feedback of any sort) please let us know at <a href="mailto:pickartd@carleton.edu"> pickartd@carleton.edu</a>. </dd>
         </dl>

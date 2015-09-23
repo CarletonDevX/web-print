@@ -26,6 +26,28 @@ a {
   justify-content: center;
   align-items: center;
 }
+/* error pane ---------------------------------------------- */
+.error-pane {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  color: white;
+  background-color: black;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  opacity: .85;
+}
+.error-pane.shown {
+  display: flex;
+}
+#error-message {
+  text-align: center;
+  max-width: 20em;
+}
 /* printer ---------------------------------------------- */
 .printer {
   margin-top: 2em;
