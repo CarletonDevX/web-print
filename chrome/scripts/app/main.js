@@ -139,9 +139,6 @@ var attemptLogin = function (user, pass) {
     } else {
       storeLoginInfo(user, pass);
       setInfoFromResponse(response);
-      if (localStorage.getItem('lastStored') == null) {
-        storeDefaultInfo();
-      }
       stateLogin();
       navigateToPage();
     }
@@ -153,7 +150,7 @@ var navigateToPage = function () {
   getRequest('/app?service=page/UserWebPrint', web_print_payload, function (response) {
     //"Submit Job"
     getRequest('/app?service=action/1/UserWebPrint/0/$ActionLink', {}, function (response) {
-        checkPrinterInfo();
+      // Other initialization?
     });
   });
 }
@@ -161,13 +158,8 @@ var navigateToPage = function () {
 var startPrint = function (data) {
   printMessage("Starting job...");
   stateBusy();
-  if (localStorage.getItem(data.printer) == null) {
-    storePrinterInfo(1, function () {
-      findPrinter(data, localStorage.getItem(data.printer));
-    });
-  } else {
-    findPrinter(data, localStorage.getItem(data.printer));
-  }
+  page = printerPages[data.printer];
+  findPrinter(data, printerPages[data.printer]);    
 }
 
 // Navigate to correct page and find radio button
@@ -414,6 +406,7 @@ var sessionState;
 var filesToUpload;
 var printerDict;
 var useLocation;
+var printerPages;
 
 var spin_opts = {
     lines: 9, 
@@ -437,8 +430,10 @@ $(document).ready(function () {
     if (response.errors) {
       $('.error-pane').addClass("shown");
       $('#error-message').html(response.errors);
+    } else {
+      if (response.printerPages) printerPages = response.printerPages;
     }
-  })
+  });
 
   // init faq popup
   $('#faq_popup').popup({
@@ -446,6 +441,7 @@ $(document).ready(function () {
   });
 
   printerDict = Printers.printers;
+  printerPages = Printers.printerPages;
 
   stateInitial();
   connectToServer();
@@ -456,6 +452,7 @@ $(document).ready(function () {
   } else {
     useLocation = true;
   }
+
   $('#printer-default-checkbox').prop('checked', !useLocation);
 
   $('#printer-default-checkbox').change(function () {
@@ -660,59 +657,6 @@ var checkPrinterStatus = function (printer, attempt) {
   } else {
     printMessage("Printer online.");
   }
-}
-
-
-var storeDefaultInfo = function () {
-  for (i in printerDict) {
-    localStorage.setItem(printerDict[i].long_name, printerDict[i].page);   
-  }
-  console.log("Printer information set to default.")    
-  var currtime = Math.floor(new Date().getTime()/60000);
-  localStorage.setItem('lastStored', currtime); 
-}
-
-var checkPrinterInfo = function () {
-  var currtime = Math.floor(new Date().getTime()/60000);
-  console.log(currtime-localStorage.getItem('lastStored') + " minutes since last update.");
-  //Every two weeks
-  if (currtime-localStorage.getItem('lastStored') > 20160) {
-    printMessage("Performing update...");
-    storePrinterInfo(1, function () {
-      checkPrinterStatus($(".printer-select").val(), 1);
-      stateLogin();
-    });
-  } else {
-    console.log("Printer info is up-to-date.")
-  }
-}
-
-//Puts printer page values in local storage. Called from checkPrinterInfo() and startPrint()
-var storePrinterInfo = function (attempt, callback) {
-  if (attempt <= 4) {
-    stateBusy();
-    console.log("Storing info on page " + attempt);
-    var url = '/app?service=direct/1/UserWebPrintSelectPrinter/table.tablePages.linkPage&sp=AUserWebPrintSelectPrinter%2Ftable.tableView&sp=' + attempt;
-    getRequest(url, {}, function (response) {
-      var lines = response.split("\n");
-      var re = new RegExp("value=\"[0-9]+\".*\r(.*)");
-      for (i in lines) {
-        var select = lines[i].match(re);
-        if (select != null) {
-          localStorage.setItem(select[1], attempt);
-        }
-      }
-      storePrinterInfo(attempt+1, callback);
-    });
-  } else {
-    var currtime = Math.floor(new Date().getTime()/60000);
-    localStorage.setItem('lastStored', currtime);
-    if (callback != null) {
-      callback();
-    } else {
-      stateLogin();
-    }
-  }    
 }
 
 });
