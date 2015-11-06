@@ -1,4 +1,71 @@
-define(['jquery', 'app/printers', 'spin', 'popupoverlay', 'debounce', 'select2'], function ($, Printers, Spinner) {  
+define(['jquery', 'app/printers', 'spin', 'popupoverlay', 'debounce', 'select2'], function ($, Printers, Spinner) { 
+
+/******************************
+  Helper functions
+ ******************************/
+
+
+var printMessage = function (message) {
+  $('.printer-status').removeClass('printer-status--error');
+  $('.printer-status').text(message);
+}
+
+var printError = function (message) {
+  $('.printer-status').addClass('printer-status--error');
+  $('.printer-status').text(message);
+}
+
+var setInfoFromResponse = function (response) {
+  var username = $('.js-login-user').val();
+  var name = response.match(new RegExp(username + '\\s\\((.+?)\\)'))[1];
+  var balance = parseFloat(response.match(/\$(\d+\.\d+)/)[1]);
+  var percent = balance / 96 * 100;
+  $('.js-name').text(name);
+  $('.js-balance').text(balance);
+  $('.js-used').css('width', '' + percent + '%');
+}
+
+var checkPrinterStatus = function (printer, attempt) {
+  if (attempt < 4){
+    var url_end;
+    switch (attempt) {
+      case 1: 
+        url_end = "startid=1&endid=101";
+        break;
+      case 2:
+        url_end = "startid=101&endid=201";
+        break;
+      case 3:
+        url_end = "startid=201&endid=301";
+        break;
+    }
+
+    //GET from printer status page
+    $.ajax({
+      type: 'GET',
+      url: 'https://print.ads.carleton.edu/printers/ipp_0001.asp?' + url_end,
+      data: {},
+      xhrFields: {withCredentials: true},
+      success: function (response) {
+        var re = new RegExp(printer.substring(5)+".*>(.*)");
+        lines = response.split("</font></font></td>");
+        for (i in lines) {
+          var message = lines[i].match(re);
+          if (message != null) {
+            if (message[1] != "Ready" && message[1].indexOf('Paused') < 0){
+              printError("Warning: " + message[1] + ".");
+              return;
+            }
+          }
+        }
+        checkPrinterStatus(printer, attempt +1);
+      },
+      error: function () {console.log('error in get')}
+    });
+  } else {
+    printMessage("Printer online.");
+  }
+} 
 
 /******************************
   Request helpers
@@ -432,6 +499,7 @@ $(document).ready(function () {
       $('#error-message').html(response.errors);
     } else {
       if (response.printerPages) printerPages = response.printerPages;
+      console.log(printerPages);
     }
   });
 
@@ -592,71 +660,5 @@ $(document).ready(function () {
   });
 });
 
-/******************************
-  Helper functions
- ******************************/
-
-
-var printMessage = function (message) {
-  $('.printer-status').removeClass('printer-status--error');
-  $('.printer-status').text(message);
-}
-
-var printError = function (message) {
-  $('.printer-status').addClass('printer-status--error');
-  $('.printer-status').text(message);
-}
-
-var setInfoFromResponse = function (response) {
-  var username = $('.js-login-user').val();
-  var name = response.match(new RegExp(username + '\\s\\((.+?)\\)'))[1];
-  var balance = parseFloat(response.match(/\$(\d+\.\d+)/)[1]);
-  var percent = balance / 96 * 100;
-  $('.js-name').text(name);
-  $('.js-balance').text(balance);
-  $('.js-used').css('width', '' + percent + '%');
-}
-
-var checkPrinterStatus = function (printer, attempt) {
-  if (attempt < 4){
-    var url_end;
-    switch (attempt) {
-      case 1: 
-        url_end = "startid=1&endid=101";
-        break;
-      case 2:
-        url_end = "startid=101&endid=201";
-        break;
-      case 3:
-        url_end = "startid=201&endid=301";
-        break;
-    }
-
-    //GET from printer status page
-    $.ajax({
-      type: 'GET',
-      url: 'https://print.ads.carleton.edu/printers/ipp_0001.asp?' + url_end,
-      data: {},
-      xhrFields: {withCredentials: true},
-      success: function (response) {
-        var re = new RegExp(printer.substring(5)+".*>(.*)");
-        lines = response.split("</font></font></td>");
-        for (i in lines) {
-          var message = lines[i].match(re);
-          if (message != null) {
-            if (message[1] != "Ready" && message[1].indexOf('Paused') < 0){
-              printError("Warning: " + message[1] + ".");
-              return;
-            }
-          }
-        }
-        checkPrinterStatus(printer, attempt +1);
-      },
-      error: function () {console.log('error in get')}
-    });
-  } else {
-    printMessage("Printer online.");
-  }
-}
 
 });
