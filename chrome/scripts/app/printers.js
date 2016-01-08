@@ -1,12 +1,11 @@
 define([], function () {
 
   var printers = [
-    { name: 'Cassat 101', long_name: 'print\\CASS101-X4600', longitude: -93.151206, latitude: 44.460058},
+    { name: 'Cassat 101', long_name: 'print\\CASS101-C6255', longitude: -93.151206, latitude: 44.460058},
     { name: 'CLST 100 (Color)', long_name: 'print\\CLST100-CC5051'},
     { name: 'CMC 020 (Color)', long_name: 'print\\CMC020-CC5051'},
     { name: 'CMC 104', long_name: 'print\\CMC104-Gray-CC5051'},
     { name: 'CMC 104 (Color)', long_name: 'print\\CMC104-CC5051'},
-    { name: 'CMC 121 (Color)', long_name: 'print\\CMC121H-CC5051'},
     { name: 'CMC 201', long_name: 'print\\CMC201-X4600'},
     { name: 'CMC 305', long_name: 'print\\CMC305-X4600', longitude: -93.153771, latitude: 44.462505},
     { name: 'Cowling 108 (Color)', long_name: 'print\\COWL108-CC5051'},
@@ -25,7 +24,7 @@ define([], function () {
     { name: 'Laird 118 (Color)', long_name: 'print\\LAIR118-CC5051'},
     { name: 'Laird 208', long_name: 'print\\LAIR208-X4600', autorelease: false },
     { name: 'Laird 208 (Color)', long_name: 'print\\LAIR208-CC5051'},
-    { name: 'Laird 300', long_name: 'print\\LAIR300-X4500'},
+    { name: 'Laird 300', long_name: 'print\\LAIR300-X3610'},
     { name: 'LAST 110 (Color)', long_name: 'print\\LAST110-CC5051'},
     { name: 'LDC 220 (Color)', long_name: 'print\\LDC220-CC5051'},
     { name: 'LDC 243', long_name: 'print\\LDC243-X5550', longitude: -93.151494, latitude: 44.461044},
