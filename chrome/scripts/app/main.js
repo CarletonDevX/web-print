@@ -251,18 +251,18 @@ var submitSelection = function (data, select) {
   var newpayload = select_printer_payload;
   newpayload['$RadioGroup'] = select;
   postRequest('/app', newpayload, function (response) {
-    submitOptions(data, select);
+    submitOptions(data);
   });
 }
 
 
 // Submit print options and account selection
-var submitOptions = function (data, select) {
+var submitOptions = function (data) {
   var newpayload = print_options_payload;
-  newpayload['$RadioGroup'] = select;
+  // Default to personal account
+  newpayload['$RadioGroup'] = 0;
   newpayload['copies'] = data.copies;
   postRequest('/app', newpayload, function (response) {
-
     //Pulling out UID for use in the next request
     var re = new RegExp("uploadUID = \'([0-9]+)\'");
     var uploadUID = response.match(re)[1];
