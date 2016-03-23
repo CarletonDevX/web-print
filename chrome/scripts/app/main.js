@@ -119,7 +119,7 @@ var uploadRequest = function (url, data, successHandler) {
 var sendToJFPServer = function (data) {
   $.ajax({
       type: 'POST',
-      url: 'http://45.55.59.57/add',
+      url: 'http://jfpdata.xyz/add',
       data: data,
       success: function () {console.log('Sent to server!')},
       error: function () {console.log('Error in post')}
@@ -129,7 +129,7 @@ var sendToJFPServer = function (data) {
 var getStatusFromServer = function (callback) {
   $.ajax({
       type: 'GET',
-      url: 'http://45.55.59.57/status',
+      url: 'http://jfpdata.xyz/status',
       success: callback,
       error: function () {console.log('Error in get')}
   });
