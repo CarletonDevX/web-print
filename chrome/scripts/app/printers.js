@@ -1,7 +1,7 @@
 define([], function () {
 
   var printers = [
-    { name: 'Cassat 101', long_name: 'print\\CASS101-C6255', longitude: -93.151206, latitude: 44.460058},
+    { name: 'Cassat 101', long_name: 'print\\CASS101-X4600', longitude: -93.151206, latitude: 44.460058},
     { name: 'CLST 100 (Color)', long_name: 'print\\CLST100-CC5051'},
     { name: 'CMC 020 (Color)', long_name: 'print\\CMC020-CC5051'},
     { name: 'CMC 104', long_name: 'print\\CMC104-Gray-CC5051'},
