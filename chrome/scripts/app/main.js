@@ -508,6 +508,11 @@ $(document).ready(function () {
     transition: 'all 0.3s'
   });
 
+  // init ad popup
+  $('#ad_popup').popup({
+    transition: 'all 0.3s'
+  });
+
   printerDict = Printers.printers;
   printerPages = Printers.printerPages;
 

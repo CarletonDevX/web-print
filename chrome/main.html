@@ -10,7 +10,7 @@
 </head>
 <body>
   <div class="wrapper">
-    <!-- <div class="error-pane"> <h4 id="error-message"></h4> <h4>In the meantime, use <a href="https://print.ads.carleton.edu:9192/user">WebPrint</a>.</h4> </div> -->
+    <div class="error-pane"> <h4 id="error-message"></h4> <h4>In the meantime, use <a href="https://print.ads.carleton.edu:9192/user">WebPrint</a>.</h4> </div>
     <ul class="printer">
       <div class="slot"></div>
       <li class="big">
@@ -54,6 +54,9 @@
         <input class="printer-send" type="button" value="Print">
         </div>
       </li>
+      <li>
+        <a href="#" class="ad_popup_open">JFP needs your help!</a>
+      </li>
     </ul>
 
     <div class="user hide">
@@ -67,12 +70,21 @@
       Just Print is a <a href="https://www.facebook.com/carletondevx" target="_blank">Carleton DevX</a> project. <a href="#" class="faq_popup_open">FAQ</a>
     </div>
 
+<!-- POPUP -->
+    <div id="ad_popup" class="popup" style="display:none">
+      <div class="popup-content">
+        <h3> Help Wanted </h3>
+        <p>
+          Hi, I'm David Pickart, the creator of JFP. I hope you've enjoyed using this app and found it useful. Unfortunately, I'll be graduating soon, and JFP will quickly become unusable unless someone is on campus to help maintain it when I'm gone. So, I'm looking for someone to help keep JFP running next year! A fair amount of coding experience would be great, especially with client-side Javascript, but nothing is required as long as you're willing to learn. If you're interested, just shoot me an email at <a href="mailto:pickartd@carleton.edu"> pickartd@carleton.edu</a>.
+        </p>
+      </div>
+    </div>
 
     <!-- POPUP -->
-    <div id="faq_popup" style="display:none">
-      <div id="faq-content">
+    <div id="faq_popup" class="popup" style="display:none">
+      <div class="popup-content">
         <h3> Frequently Asked Questions </h3>
-        <dl id="faq-list">
+        <dl class="popup-list">
           <dt>Why can't I choose whether to print double-sided?</dt>
           <dd>Under the hood, Just Print works by sending automated requests to PaperCut's <a href="http://go.carleton.edu/webprint">Web Print</a> service. Right now, that service doesn't support double-sided printing- so, neither can we! </dd>
           <dt>Why can't I print more than 10 copies?</dt>

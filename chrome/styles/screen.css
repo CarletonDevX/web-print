@@ -275,15 +275,19 @@ a {
 
 /* faq popup ---------------------------------------------- */
 
-#faq_popup {
+.popup {
   transform: scale(0.8);
 }
 
-.popup_visible #faq_popup {
+.popup_visible .popup {
   transform: scale(1);
 }
 
-#faq-content {
+.popup-content p {
+  text-align: left;
+}
+
+.popup-content {
   font-size: .9em;
   max-width: 25em;
   text-align: center;
@@ -292,20 +296,20 @@ a {
   border-radius: 5px;
 }
 
-#faq-content h3 {
+.popup-content h3 {
   color: #0C70AC;
 }
 
-#faq-list {
+.popup-list {
   text-align: left;
   line-height: 1.5em;
 }
 
-#faq-list dt {
+.popup-list dt {
   font-weight: bold;
 }
 
-#faq-list dd {
+.popup-list dd {
   margin: 0;
   padding-bottom: 1em;
 }

@@ -4,7 +4,7 @@
     "name": "Just Print",
     "short_name": "JFP",
     "description": "Web print at Carleton College made easy.",
-    "version": "1.7.0",
+    "version": "1.9.0",
 
     "permissions": [
         "https://print.ads.carleton.edu:9192/",
