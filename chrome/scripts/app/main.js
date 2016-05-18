@@ -509,9 +509,9 @@ $(document).ready(function () {
   });
 
   // init ad popup
-  $('#ad_popup').popup({
-    transition: 'all 0.3s'
-  });
+  // $('#ad_popup').popup({
+  //   transition: 'all 0.3s'
+  // });
 
   printerDict = Printers.printers;
   printerPages = Printers.printerPages;
